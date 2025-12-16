@@ -107,7 +107,7 @@ export function PokerTable({
         return (
           <div
             key={player.seat}
-            className="absolute z-20"
+            className={`absolute ${isActive ? 'z-40' : 'z-20'}`}
             style={{
               left: position.left,
               top: position.top,
@@ -129,6 +129,7 @@ export function PokerTable({
                   ? { action: currentFrame.action, amount: currentFrame.amount }
                   : null
               }
+              reasoning={isActive ? currentFrame?.agentDecision?.final_action?.reasoning : undefined}
               onClick={() => onSelectSeat(player.seat)}
             />
           </div>

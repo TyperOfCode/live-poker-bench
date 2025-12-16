@@ -2,7 +2,12 @@ import { create } from 'zustand';
 import type { HandData, AgentHandData, TournamentState, ReplayFrame } from '../types';
 import { loadHandAndAgentData, loadFullTournament, mergeHandAndAgentData, listAvailableTournaments } from '../data';
 
+export type ActiveView = 'replay' | 'summary' | 'overall' | 'about';
+
 interface ReplayStore {
+  // View state
+  activeView: ActiveView;
+
   // Tournament state
   tournamentId: string | null;
   tournament: TournamentState | null;
@@ -28,6 +33,7 @@ interface ReplayStore {
   error: string | null;
 
   // Actions
+  setActiveView: (view: ActiveView) => void;
   loadAvailableTournaments: () => Promise<void>;
   loadTournament: (id: string) => Promise<void>;
   loadHand: (handNumber: number) => Promise<void>;
@@ -56,6 +62,7 @@ interface ReplayStore {
 
 export const useReplayStore = create<ReplayStore>((set, get) => ({
   // Initial state
+  activeView: 'replay',
   tournamentId: null,
   tournament: null,
   availableTournaments: [],
@@ -70,6 +77,9 @@ export const useReplayStore = create<ReplayStore>((set, get) => ({
   playbackSpeed: 1,
   selectedSeat: null,
   error: null,
+
+  // View actions
+  setActiveView: (view) => set({ activeView: view }),
 
   // Load available tournaments
   loadAvailableTournaments: async () => {
@@ -189,6 +199,7 @@ export const useReplayStore = create<ReplayStore>((set, get) => ({
   // Reset
   reset: () =>
     set({
+      activeView: 'replay',
       tournamentId: null,
       tournament: null,
       availableTournaments: [],

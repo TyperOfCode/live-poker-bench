@@ -5,6 +5,9 @@ import { PokerTable } from './components/table';
 import { PlaybackControls, SpeedControl, StreetJump, Timeline, HandNavigation } from './components/controls';
 import { HandList, EliminationTracker } from './components/navigation';
 import { AIReasoningPanel } from './components/reasoning';
+import { TournamentSummary, OverallStatistics } from './components/statistics';
+import { TopNavigation } from './components/layout/TopNavigation';
+import { AboutPage } from './components/about';
 import { getBlindLevelForHand } from './data/tournament';
 
 function Header() {
@@ -14,10 +17,9 @@ function Header() {
   const loadTournament = useReplayStore((state) => state.loadTournament);
   const currentHandNumber = useReplayStore((state) => state.currentHandNumber);
   const handData = useReplayStore((state) => state.handData);
+  const activeView = useReplayStore((state) => state.activeView);
 
-  if (!tournament || !handData) return null;
-
-  const blinds = getBlindLevelForHand(currentHandNumber, tournament.meta);
+  const blinds = tournament && handData ? getBlindLevelForHand(currentHandNumber, tournament.meta) : null;
 
   return (
     <header className="bg-gray-900 border-b border-gray-700 px-4 py-3">
@@ -26,25 +28,30 @@ function Header() {
           <h1 className="text-xl font-bold text-white">
             Poker Tournament Replay
           </h1>
-          <select
-            value={tournamentId || ''}
-            onChange={(e) => loadTournament(e.target.value)}
-            className="bg-gray-800 text-white text-sm px-3 py-1.5 rounded border border-gray-600 hover:border-gray-500 focus:outline-none focus:border-blue-500"
-          >
-            {availableTournaments.map((id) => (
-              <option key={id} value={id}>
-                Tournament {parseInt(id, 10)}
-              </option>
-            ))}
-          </select>
+          <TopNavigation />
+          {activeView !== 'overall' && activeView !== 'about' && (
+            <select
+              value={tournamentId || ''}
+              onChange={(e) => loadTournament(e.target.value)}
+              className="bg-gray-800 text-white text-sm px-3 py-1.5 rounded border border-gray-600 hover:border-gray-500 focus:outline-none focus:border-blue-500"
+            >
+              {availableTournaments.map((id) => (
+                <option key={id} value={id}>
+                  Tournament {parseInt(id, 10)}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        <div className="flex items-center gap-6">
-          <HandNavigation />
-          <div className="text-gray-400 text-sm">
-            Level {blinds.level} ({blinds.sb}/{blinds.bb})
+        {activeView === 'replay' && blinds && (
+          <div className="flex items-center gap-6">
+            <HandNavigation />
+            <div className="text-gray-400 text-sm">
+              Level {blinds.level} ({blinds.sb}/{blinds.bb})
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );
@@ -173,6 +180,7 @@ export default function App() {
   const isLoadingTournament = useReplayStore((state) => state.isLoadingTournament);
   const tournament = useReplayStore((state) => state.tournament);
   const error = useReplayStore((state) => state.error);
+  const activeView = useReplayStore((state) => state.activeView);
 
   // Set up hooks
   useAutoPlay();
@@ -188,6 +196,28 @@ export default function App() {
     return <ErrorState error={error} />;
   }
 
+  // For about view, no tournament needed
+  if (activeView === 'about') {
+    return (
+      <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
+        <Header />
+        <div className="flex-1 overflow-auto">
+          <AboutPage />
+        </div>
+      </div>
+    );
+  }
+
+  // For overall view, we don't need a tournament loaded
+  if (activeView === 'overall') {
+    return (
+      <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
+        <Header />
+        <OverallStatistics />
+      </div>
+    );
+  }
+
   if (isLoadingTournament || !tournament) {
     return <LoadingState />;
   }
@@ -195,7 +225,8 @@ export default function App() {
   return (
     <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
       <Header />
-      <MainContent />
+      {activeView === 'replay' && <MainContent />}
+      {activeView === 'summary' && <TournamentSummary />}
     </div>
   );
 }

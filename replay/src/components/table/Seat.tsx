@@ -14,6 +14,7 @@ interface SeatProps {
   isSelected: boolean;
   isEliminated?: boolean;
   currentAction?: { action: string; amount: number } | null;
+  reasoning?: string;
   onClick?: () => void;
   className?: string;
 }
@@ -29,6 +30,7 @@ export function Seat({
   isSelected,
   isEliminated = false,
   currentAction,
+  reasoning,
   onClick,
   className,
 }: SeatProps) {
@@ -46,13 +48,26 @@ export function Seat({
         className
       )}
     >
-      {/* Action bubble */}
+      {/* Action bubble - below the seat */}
       {isActive && currentAction && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-10">
           <ActionBubble
             action={currentAction.action}
             amount={currentAction.amount}
           />
+        </div>
+      )}
+
+      {/* Reasoning bubble - above the seat, always on top */}
+      {isActive && reasoning && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50">
+          <div
+            className="group bg-gray-900/80 hover:bg-gray-900/95 text-gray-200 text-sm px-3 py-2 rounded-lg w-[320px] cursor-default border border-gray-700 shadow-lg transition-all"
+          >
+            <div className="line-clamp-4 group-hover:line-clamp-none transition-all leading-relaxed">
+              {reasoning}
+            </div>
+          </div>
         </div>
       )}
 
