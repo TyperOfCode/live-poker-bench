@@ -2,13 +2,14 @@
 
 import json
 import re
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from live_poker_bench.agents.base import AgentAction, BaseAgent, Observation
 from live_poker_bench.agents.memory import AgentMemory
 from live_poker_bench.agents.tools import TOOL_DEFINITIONS, execute_tool
-from live_poker_bench.llm.adapter import LLMAdapter, LLMConfig, ReasoningSettings
+from live_poker_bench.llm.adapter import LLMAdapter, LLMConfig, ProviderSettings, ReasoningSettings
 
 
 SYSTEM_PROMPT = """You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.
@@ -17,12 +18,14 @@ You have access to memory tools to recall information about past hands and oppon
 
 When you decide on an action, respond with a JSON object in this exact format:
 {
-  "action": "fold" | "call" | "raise",
+  "action": "fold" | "check" | "call" | "raise",
   "raise_to": <number if raising, otherwise null>,
   "reasoning": "<brief explanation of your decision>"
 }
 
 Important rules:
+- Use "check" when there's nothing to call (amount to call is 0)
+- Use "call" when facing a bet you want to match
 - If raising, "raise_to" is the TOTAL amount you're putting in (not the additional amount)
 - You can only raise if "raise" is in your legal_actions
 - If you can't afford the minimum raise, you can go all-in
@@ -41,11 +44,15 @@ class DecisionTrace:
     """Trace of a single decision point."""
 
     observation: dict[str, Any]
+    street: str = ""
+    messages: list[dict[str, Any]] = field(default_factory=list)  # Full conversation
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     llm_responses: list[dict[str, Any]] = field(default_factory=list)
     final_action: dict[str, Any] | None = None
     retries: int = 0
     error: str | None = None
+    forced_fold: bool = False
+    thinking_time_ms: float = 0.0
 
 
 class LLMAgent(BaseAgent):
@@ -59,6 +66,7 @@ class LLMAgent(BaseAgent):
         max_retries: int = 3,
         config: dict[str, Any] | None = None,
         reasoning: dict[str, Any] | None = None,
+        provider: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the LLM agent.
 
@@ -74,6 +82,14 @@ class LLMAgent(BaseAgent):
                 - max_tokens: int - Max tokens for reasoning
                 - include_reasoning: bool - Include reasoning in response
                 - preserve_blocks: bool - Preserve reasoning_details for multi-turn (required for Gemini)
+            provider: OpenRouter provider preferences dict with keys:
+                - order: list[str] - Ordered list of provider names to prefer
+                - allow_fallbacks: bool - Allow fallback to other providers
+                - require_parameters: bool - Require all parameters to be supported
+                - data_collection: str - "allow" or "deny"
+                - only: list[str] - Only use these providers
+                - ignore: list[str] - Never use these providers
+                - quantizations: list[str] - Allowed quantization levels
         """
         super().__init__(name, config)
         self.model = model
@@ -91,8 +107,21 @@ class LLMAgent(BaseAgent):
                 preserve_blocks=reasoning.get("preserve_blocks", True),
             )
 
+        # Build provider settings
+        provider_settings = None
+        if provider:
+            provider_settings = ProviderSettings(
+                order=provider.get("order"),
+                allow_fallbacks=provider.get("allow_fallbacks"),
+                require_parameters=provider.get("require_parameters"),
+                data_collection=provider.get("data_collection"),
+                only=provider.get("only"),
+                ignore=provider.get("ignore"),
+                quantizations=provider.get("quantizations"),
+            )
+
         # Initialize LLM adapter
-        llm_config = LLMConfig(model=model, reasoning=reasoning_settings)
+        llm_config = LLMConfig(model=model, reasoning=reasoning_settings, provider=provider_settings)
         self.llm = LLMAdapter(llm_config)
 
         # Memory will be initialized when seat is set
@@ -162,23 +191,57 @@ class LLMAgent(BaseAgent):
 
         return "\n".join(lines)
 
+    def _extract_json_from_markdown(self, text: str) -> str | None:
+        """Extract JSON content from markdown code blocks.
+        
+        Handles formats like:
+        - ```json\n{...}\n```
+        - ```\n{...}\n```
+        - ``` json\n{...}\n```
+        
+        Returns the content of the first code block containing valid JSON with "action",
+        or None if no such block is found.
+        """
+        # Pattern to match markdown code blocks with optional language tag
+        pattern = r'```\s*(?:json)?\s*\n?(.*?)\n?```'
+        matches = re.finditer(pattern, text, re.DOTALL | re.IGNORECASE)
+        
+        for match in matches:
+            content = match.group(1).strip()
+            # Check if this block contains JSON with "action" key
+            if '"action"' in content and '{' in content:
+                return content
+        
+        return None
+
     def _parse_action(self, response_text: str, observation: Observation) -> AgentAction | None:
         """Parse the LLM response into an action."""
         # Try to extract JSON from the response
         try:
-            # Look for JSON in the response
-            json_match = re.search(r'\{[^{}]*"action"[^{}]*\}', response_text, re.DOTALL)
-            if json_match:
-                data = json.loads(json_match.group())
+            # First, try to extract JSON from markdown code blocks
+            markdown_json = self._extract_json_from_markdown(response_text)
+            
+            if markdown_json:
+                # Found JSON in a markdown block - try to parse it
+                json_match = re.search(r'\{[^{}]*"action"[^{}]*\}', markdown_json, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group())
+                else:
+                    data = json.loads(markdown_json)
             else:
-                # Try parsing the whole response as JSON
-                data = json.loads(response_text)
+                # No markdown block found, search in raw text
+                json_match = re.search(r'\{[^{}]*"action"[^{}]*\}', response_text, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group())
+                else:
+                    # Try parsing the whole response as JSON
+                    data = json.loads(response_text)
 
             action = data.get("action", "").lower()
             raise_to = data.get("raise_to")
             reasoning = data.get("reasoning", "")
 
-            if action not in ["fold", "call", "raise"]:
+            if action not in ["fold", "check", "call", "raise"]:
                 return None
 
             if action == "raise" and raise_to is None:
@@ -220,7 +283,11 @@ class LLMAgent(BaseAgent):
         Returns:
             The agent's chosen action.
         """
-        trace = DecisionTrace(observation=observation.to_dict())
+        start_time = time.time()
+        trace = DecisionTrace(
+            observation=observation.to_dict(),
+            street=observation.street,
+        )
 
         # Build messages
         messages = [
@@ -290,7 +357,12 @@ class LLMAgent(BaseAgent):
                     continue
 
                 # Valid action found
+                thinking_time_ms = (time.time() - start_time) * 1000
                 trace.final_action = action.to_dict()
+                trace.thinking_time_ms = thinking_time_ms
+                trace.messages = messages.copy()  # Capture final conversation state
+                action.thinking_time_ms = thinking_time_ms
+                action.retries = retries
                 self.decision_traces.append(trace)
                 return action
 
@@ -300,21 +372,53 @@ class LLMAgent(BaseAgent):
                 trace.retries = retries
 
         # Max retries exceeded, force fold
+        thinking_time_ms = (time.time() - start_time) * 1000
         trace.error = f"Max retries ({self.max_retries}) exceeded, forcing fold"
+        trace.forced_fold = True
         trace.final_action = {"action": "fold", "raise_to": None, "reasoning": "Forced fold due to invalid actions"}
+        trace.thinking_time_ms = thinking_time_ms
+        trace.messages = messages.copy()  # Capture final conversation state
         self.decision_traces.append(trace)
-        return AgentAction(action="fold", reasoning="Forced fold due to invalid actions")
+        return AgentAction(
+            action="fold",
+            reasoning="Forced fold due to invalid actions",
+            forced=True,
+            retries=retries,
+            thinking_time_ms=thinking_time_ms,
+        )
 
     def get_traces(self) -> list[dict[str, Any]]:
         """Get all decision traces for logging."""
         return [
             {
                 "observation": t.observation,
+                "street": t.street,
+                "messages": t.messages,
                 "tool_calls": t.tool_calls,
                 "llm_responses": t.llm_responses,
                 "final_action": t.final_action,
                 "retries": t.retries,
                 "error": t.error,
+                "forced_fold": t.forced_fold,
+                "thinking_time_ms": t.thinking_time_ms,
             }
             for t in self.decision_traces
         ]
+
+    def get_last_trace(self) -> dict[str, Any] | None:
+        """Get the most recent decision trace for immediate logging."""
+        if not self.decision_traces:
+            return None
+        t = self.decision_traces[-1]
+        return {
+            "observation": t.observation,
+            "street": t.street,
+            "messages": t.messages,
+            "tool_calls": t.tool_calls,
+            "llm_responses": t.llm_responses,
+            "final_action": t.final_action,
+            "retries": t.retries,
+            "error": t.error,
+            "forced_fold": t.forced_fold,
+            "thinking_time_ms": t.thinking_time_ms,
+        }

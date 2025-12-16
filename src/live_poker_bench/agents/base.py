@@ -67,9 +67,12 @@ class Observation:
 class AgentAction:
     """Action returned by an agent."""
 
-    action: Literal["fold", "call", "raise"]
+    action: Literal["fold", "check", "call", "raise"]
     raise_to: int | None = None  # Total amount to raise to (not the raise amount)
     reasoning: str = ""
+    forced: bool = False  # True if this was a forced fold due to retries
+    retries: int = 0  # Number of retries before this action
+    thinking_time_ms: float = 0.0  # Time spent thinking
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -77,6 +80,9 @@ class AgentAction:
             "action": self.action,
             "raise_to": self.raise_to,
             "reasoning": self.reasoning,
+            "forced": self.forced,
+            "retries": self.retries,
+            "thinking_time_ms": self.thinking_time_ms,
         }
 
 

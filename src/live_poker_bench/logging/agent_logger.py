@@ -19,6 +19,7 @@ class AgentLogger:
         self.agents_dir.mkdir(parents=True, exist_ok=True)
         self._traces: dict[int, list[dict[str, Any]]] = {}  # seat -> traces
         self._agent_names: dict[int, str] = {}  # seat -> name
+        self._current_hand_decisions: dict[int, list[dict[str, Any]]] = {}  # seat -> decisions this hand
 
     def register_agent(self, seat: int, name: str) -> None:
         """Register an agent for logging.
@@ -29,15 +30,28 @@ class AgentLogger:
         """
         self._traces[seat] = []
         self._agent_names[seat] = name
+        self._current_hand_decisions[seat] = []
+
+    def start_hand(self, hand_number: int) -> None:
+        """Start a new hand - reset per-hand decision tracking.
+
+        Args:
+            hand_number: The hand number starting.
+        """
+        for seat in self._current_hand_decisions:
+            self._current_hand_decisions[seat] = []
 
     def log_decision(
         self,
         seat: int,
         hand_number: int,
+        street: str,
         observation: dict[str, Any],
+        messages: list[dict[str, Any]],
         tool_calls: list[dict[str, Any]],
         llm_responses: list[dict[str, Any]],
         final_action: dict[str, Any],
+        thinking_time_ms: float = 0.0,
         retries: int = 0,
         error: str | None = None,
     ) -> None:
@@ -46,28 +60,87 @@ class AgentLogger:
         Args:
             seat: Agent's seat.
             hand_number: Current hand number.
+            street: The betting street when decision was made.
             observation: The observation sent to the agent.
+            messages: Full conversation messages sent to LLM.
             tool_calls: List of tool calls made.
             llm_responses: List of LLM responses.
             final_action: The final action taken.
+            thinking_time_ms: Time spent thinking in milliseconds.
             retries: Number of retries needed.
             error: Any error message.
         """
-        if seat not in self._traces:
-            self._traces[seat] = []
+        if seat not in self._current_hand_decisions:
+            self._current_hand_decisions[seat] = []
 
-        trace = {
+        decision = {
+            "seat": seat,
+            "agent_name": self._agent_names.get(seat, f"Agent_{seat}"),
             "hand_number": hand_number,
+            "street": street,
             "observation": observation,
+            "conversation": messages,
             "tool_calls": tool_calls,
             "llm_responses": llm_responses,
             "final_action": final_action,
+            "thinking_time_ms": round(thinking_time_ms, 1),
             "retries": retries,
         }
         if error:
-            trace["error"] = error
+            decision["error"] = error
 
-        self._traces[seat].append(trace)
+        self._current_hand_decisions[seat].append(decision)
+
+        # Also add to full traces for summary at end
+        if seat not in self._traces:
+            self._traces[seat] = []
+        self._traces[seat].append(decision)
+
+    def end_hand(self, hand_number: int) -> None:
+        """End the current hand and write per-hand agent log.
+
+        Args:
+            hand_number: The hand number that just completed.
+        """
+        # Collect all decisions from this hand
+        hand_decisions = []
+        for seat, decisions in self._current_hand_decisions.items():
+            hand_decisions.extend(decisions)
+
+        if not hand_decisions:
+            return
+
+        # Sort by the order decisions were made (they're already in order per-seat)
+        # We'll organize by seat for clarity
+        decisions_by_seat = {}
+        for decision in hand_decisions:
+            seat = decision["seat"]
+            if seat not in decisions_by_seat:
+                decisions_by_seat[seat] = []
+            decisions_by_seat[seat].append(decision)
+
+        # Build the hand file
+        hand_data = {
+            "hand_number": hand_number,
+            "decisions": decisions_by_seat,
+            "summary": {
+                "total_decisions": len(hand_decisions),
+                "total_tool_calls": sum(len(d.get("tool_calls", [])) for d in hand_decisions),
+                "total_retries": sum(d.get("retries", 0) for d in hand_decisions),
+                "agents_acted": list(decisions_by_seat.keys()),
+            },
+        }
+
+        # Write per-hand file
+        filename = f"hand_{hand_number:03d}.json"
+        filepath = self.agents_dir / filename
+
+        with open(filepath, "w") as f:
+            json.dump(hand_data, f, indent=2)
+
+        # Reset for next hand
+        for seat in self._current_hand_decisions:
+            self._current_hand_decisions[seat] = []
 
     def add_traces_from_agent(
         self,

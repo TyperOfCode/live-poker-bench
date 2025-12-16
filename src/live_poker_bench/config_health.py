@@ -238,7 +238,11 @@ class HealthChecker:
         )
 
     def check_agent_connectivity(
-        self, agent_name: str, model: str, reasoning_enabled: bool = False
+        self,
+        agent_name: str,
+        model: str,
+        reasoning_enabled: bool = False,
+        provider_config: dict[str, Any] | None = None,
     ) -> CheckResult:
         """Test connectivity to a single agent's model.
 
@@ -246,6 +250,7 @@ class HealthChecker:
             agent_name: Display name of the agent.
             model: Model identifier (e.g., "openrouter/openai/gpt-4o").
             reasoning_enabled: Whether reasoning is enabled for this agent.
+            provider_config: Optional provider preferences dict.
 
         Returns:
             CheckResult with connectivity status.
@@ -253,7 +258,12 @@ class HealthChecker:
         start = time.time()
 
         try:
-            from live_poker_bench.llm.adapter import LLMAdapter, LLMConfig, ReasoningSettings
+            from live_poker_bench.llm.adapter import (
+                LLMAdapter,
+                LLMConfig,
+                ProviderSettings,
+                ReasoningSettings,
+            )
 
             # Create adapter with appropriate config
             # For thinking models, we need to pass reasoning settings
@@ -262,12 +272,26 @@ class HealthChecker:
                 include_reasoning=reasoning_enabled,
             ) if reasoning_enabled else ReasoningSettings()
 
+            # Build provider settings if provided
+            provider = None
+            if provider_config:
+                provider = ProviderSettings(
+                    order=provider_config.get("order"),
+                    allow_fallbacks=provider_config.get("allow_fallbacks"),
+                    require_parameters=provider_config.get("require_parameters"),
+                    data_collection=provider_config.get("data_collection"),
+                    only=provider_config.get("only"),
+                    ignore=provider_config.get("ignore"),
+                    quantizations=provider_config.get("quantizations"),
+                )
+
             config = LLMConfig(
                 model=model,
                 max_tokens=100,  # Slightly higher for reasoning models
                 max_retries=1,
                 retry_delay=0.5,
                 reasoning=reasoning,
+                provider=provider,
             )
             adapter = LLMAdapter(config)
 
@@ -286,16 +310,36 @@ class HealthChecker:
                 preview = response_text[:50] + "..." if len(response_text) > 50 else response_text
                 # Note if response was in reasoning_content
                 content_type = "reasoning" if not response.content and response.reasoning_content else "content"
+                
+                # Build message with provider info if available
+                msg = f"Model {model} responding"
+                if response.provider_name:
+                    msg += f" (served by {response.provider_name})"
+                
+                details: dict[str, Any] = {
+                    "model": model,
+                    "tokens": response.usage.get("total_tokens", 0),
+                    "response_preview": preview,
+                    "content_type": content_type,
+                }
+                if response.provider_name:
+                    details["served_by"] = response.provider_name
+                if provider_config:
+                    details["provider_config"] = provider_config
+                
+                # Check if provider preference was honored (if specified)
+                status = HealthStatus.PASS
+                if provider_config and response.provider_name:
+                    requested = provider_config.get("order") or provider_config.get("only") or []
+                    if requested and response.provider_name.lower() not in [p.lower() for p in requested]:
+                        status = HealthStatus.WARN
+                        msg += f" (requested: {requested})"
+                
                 return CheckResult(
                     name=f"Agent: {agent_name}",
-                    status=HealthStatus.PASS,
-                    message=f"Model {model} responding",
-                    details={
-                        "model": model,
-                        "tokens": response.usage.get("total_tokens", 0),
-                        "response_preview": preview,
-                        "content_type": content_type,
-                    },
+                    status=status,
+                    message=msg,
+                    details=details,
                     duration_ms=duration_ms,
                 )
             else:
@@ -474,6 +518,99 @@ class HealthChecker:
             duration_ms=(time.time() - start) * 1000,
         )
 
+    def check_provider_config(self) -> CheckResult:
+        """Validate provider configuration for agents.
+
+        Checks:
+        - Valid provider names
+        - Conflicting settings (order + only)
+        - Data collection values
+        """
+        start = time.time()
+
+        if self.config is None:
+            return CheckResult(
+                name="Provider Config",
+                status=HealthStatus.SKIP,
+                message="Config not loaded",
+                duration_ms=(time.time() - start) * 1000,
+            )
+
+        issues = []
+        warnings = []
+        agents_with_provider = 0
+
+        # Known OpenRouter provider names (lowercase for comparison)
+        known_providers = {
+            "openai", "anthropic", "google", "google-vertex", "together",
+            "deepinfra", "groq", "fireworks", "lepton", "mancer", "novita",
+            "mistral", "perplexity", "replicate", "aws-bedrock", "azure",
+            "cohere", "ai21", "anyscale", "cloudflare", "deepseek", "hyperbolic",
+            "infermatic", "lambda", "lynn", "neversleep", "parasail", "featherless",
+        }
+
+        valid_data_collection = {"allow", "deny"}
+
+        for agent in self.config.agents:
+            provider = agent.provider
+            if provider is None:
+                continue
+
+            agents_with_provider += 1
+
+            # Check for conflicting settings
+            if provider.order and provider.only:
+                warnings.append(
+                    f"{agent.name}: both 'order' and 'only' specified - 'only' takes precedence"
+                )
+
+            # Validate data_collection value
+            if provider.data_collection and provider.data_collection not in valid_data_collection:
+                issues.append(
+                    f"{agent.name}: invalid data_collection '{provider.data_collection}' "
+                    f"(valid: allow, deny)"
+                )
+
+            # Check provider names (warn if unknown, might just be new)
+            all_providers = (provider.order or []) + (provider.only or []) + (provider.ignore or [])
+            for p in all_providers:
+                if p.lower() not in known_providers:
+                    warnings.append(
+                        f"{agent.name}: unknown provider '{p}' (may be valid, just not in known list)"
+                    )
+
+        if issues:
+            return CheckResult(
+                name="Provider Config",
+                status=HealthStatus.FAIL,
+                message="; ".join(issues),
+                duration_ms=(time.time() - start) * 1000,
+            )
+
+        if warnings:
+            return CheckResult(
+                name="Provider Config",
+                status=HealthStatus.WARN,
+                message="; ".join(warnings[:2]),  # Limit to first 2 warnings
+                details={"all_warnings": warnings},
+                duration_ms=(time.time() - start) * 1000,
+            )
+
+        if agents_with_provider == 0:
+            return CheckResult(
+                name="Provider Config",
+                status=HealthStatus.PASS,
+                message="No agents have provider preferences configured",
+                duration_ms=(time.time() - start) * 1000,
+            )
+
+        return CheckResult(
+            name="Provider Config",
+            status=HealthStatus.PASS,
+            message=f"{agents_with_provider} agent(s) with provider preferences",
+            duration_ms=(time.time() - start) * 1000,
+        )
+
     def run_all(self, skip_connectivity: bool = False) -> HealthReport:
         """Run all health checks.
 
@@ -512,6 +649,10 @@ class HealthChecker:
         self.report.add(result)
         self._print_result(result)
 
+        result = self.check_provider_config()
+        self.report.add(result)
+        self._print_result(result)
+
         result = self.check_log_directory()
         self.report.add(result)
         self._print_result(result)
@@ -539,8 +680,15 @@ class HealthChecker:
                 reasoning_enabled = (
                     agent.reasoning is not None and agent.reasoning.enabled
                 )
+                # Pass provider config if specified
+                provider_config = None
+                if agent.provider is not None:
+                    provider_config = agent.provider.model_dump(exclude_none=True)
                 result = self.check_agent_connectivity(
-                    agent.name, agent.model, reasoning_enabled=reasoning_enabled
+                    agent.name,
+                    agent.model,
+                    reasoning_enabled=reasoning_enabled,
+                    provider_config=provider_config,
                 )
                 self.report.add(result)
                 self._print_result(result)

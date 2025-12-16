@@ -1,31 +1,68 @@
 """Main entry point for LivePokerBench."""
 
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
+# Suppress litellm verbose output before any imports
+os.environ["LITELLM_LOG"] = "ERROR"
+
 from live_poker_bench.agents.manager import AgentManager
 from live_poker_bench.config import BenchmarkConfig, get_blind_schedule_config, load_config
 from live_poker_bench.engine.blinds import BlindSchedule
+from live_poker_bench.logging.progress import ProgressDisplay, create_file_handler
 from live_poker_bench.logging.reporter import Reporter, TournamentResult
 from live_poker_bench.tournament.runner import TournamentConfig, TournamentRunner
 
 
-def setup_logging(verbose: bool = True) -> None:
-    """Configure logging for the benchmark."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
+def setup_logging(log_dir: Path, verbose: bool = False) -> None:
+    """Configure logging for the benchmark.
+
+    Routes all detailed logs to a file, keeps terminal clean.
+
+    Args:
+        log_dir: Directory for log files.
+        verbose: If True, also show INFO logs on terminal (for debugging).
+    """
+    # Ensure log directory exists
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+
+    # Clear any existing handlers
+    root_logger.handlers.clear()
+
+    # File handler - captures EVERYTHING (DEBUG and above)
+    file_handler = create_file_handler(log_dir, level=logging.DEBUG)
+    root_logger.addHandler(file_handler)
+
+    # Console handler - only CRITICAL errors (keeps terminal clean)
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.CRITICAL if not verbose else logging.WARNING)
+    console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    root_logger.addHandler(console_handler)
+
+    # Silence noisy third-party loggers - be aggressive with litellm
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("openai").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    # LiteLLM uses multiple logger names
+    for logger_name in ["litellm", "LiteLLM", "litellm.utils", "litellm.llms"]:
+        logging.getLogger(logger_name).setLevel(logging.ERROR)
+        logging.getLogger(logger_name).handlers = []  # Remove any existing handlers
 
 
 def run_tournament(
     config: BenchmarkConfig,
     run_number: int,
     log_dir: Path,
+    progress: ProgressDisplay | None = None,
 ) -> TournamentResult:
     """Run a single tournament.
 
@@ -33,6 +70,7 @@ def run_tournament(
         config: The benchmark configuration.
         run_number: The run number (0-indexed).
         log_dir: Directory for this run's logs.
+        progress: Optional progress display for updates.
 
     Returns:
         Tournament result.
@@ -55,7 +93,7 @@ def run_tournament(
     )
 
     # Run tournament
-    runner = TournamentRunner(tournament_config, agent_manager)
+    runner = TournamentRunner(tournament_config, agent_manager, progress=progress)
     runner.save_meta()
     result = runner.run()
 
@@ -77,39 +115,65 @@ def run_benchmark(config_path: Path | str = "config.json") -> dict[str, Any]:
     # Load configuration
     config = load_config(config_path)
 
-    # Setup logging
-    setup_logging(config.output.verbose)
+    # Create base log directory
+    base_log_dir = Path(config.output.log_dir)
+    base_log_dir.mkdir(parents=True, exist_ok=True)
+
+    # Setup logging - route detailed logs to file
+    setup_logging(base_log_dir, verbose=False)
     logger = logging.getLogger(__name__)
 
     logger.info(f"Starting LivePokerBench with {config.tournament.num_runs} runs")
     logger.info(f"Players: {[a.name for a in config.agents]}")
 
-    # Create base log directory
-    base_log_dir = Path(config.output.log_dir)
-    base_log_dir.mkdir(parents=True, exist_ok=True)
-
     # Create reporter
     reporter = Reporter(base_log_dir)
 
-    # Run tournaments
-    for run_number in range(config.tournament.num_runs):
-        logger.info(f"Starting run {run_number + 1}/{config.tournament.num_runs}")
+    # Create progress display
+    agent_names = [a.name for a in config.agents]
+    progress = ProgressDisplay(
+        total_runs=config.tournament.num_runs,
+        total_players=config.tournament.seats,
+        agent_names=agent_names,
+        log_dir=base_log_dir,
+    )
 
-        # Create run-specific log directory
-        run_log_dir = base_log_dir / f"tournament_{run_number + 1:03d}"
-        run_log_dir.mkdir(parents=True, exist_ok=True)
+    # Start progress display
+    progress.start()
 
-        # Run tournament
-        result = run_tournament(config, run_number, run_log_dir)
+    try:
+        # Run tournaments
+        for run_number in range(config.tournament.num_runs):
+            logger.info(f"Starting run {run_number + 1}/{config.tournament.num_runs}")
 
-        # Save and add result
-        reporter.save_run_results(run_number + 1, result)
-        reporter.add_result(result)
+            # Signal start of run to progress display
+            progress.start_run(run_number + 1)
 
-        logger.info(
-            f"Run {run_number + 1} complete: {result.total_hands} hands, "
-            f"winner: {[k for k, v in result.placements.items() if v == 1]}"
-        )
+            # Create run-specific log directory
+            run_log_dir = base_log_dir / f"tournament_{run_number + 1:03d}"
+            run_log_dir.mkdir(parents=True, exist_ok=True)
+
+            # Run tournament
+            result = run_tournament(config, run_number, run_log_dir, progress=progress)
+
+            # Save and add result
+            reporter.save_run_results(run_number + 1, result)
+            reporter.add_result(result)
+
+            # Signal end of run to progress display
+            progress.end_run({
+                "placements": result.placements,
+                "total_hands": result.total_hands,
+            })
+
+            logger.info(
+                f"Run {run_number + 1} complete: {result.total_hands} hands, "
+                f"winner: {[k for k, v in result.placements.items() if v == 1]}"
+            )
+
+    finally:
+        # Stop progress display
+        progress.stop()
 
     # Generate and save summary
     reporter.save_summary()
@@ -141,6 +205,12 @@ def main() -> None:
         "--health-full",
         action="store_true",
         help="Run full health check including agent connectivity tests",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show warning logs in terminal (debug mode)",
     )
 
     args = parser.parse_args()

@@ -1,9 +1,10 @@
 """Tournament runner for orchestrating complete poker tournaments."""
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from live_poker_bench.agents.base import AgentAction, Observation
 from live_poker_bench.agents.manager import AgentManager
@@ -16,6 +17,9 @@ from live_poker_bench.logging.agent_logger import AgentLogger
 from live_poker_bench.logging.hand_logger import HandLogger
 from live_poker_bench.logging.reporter import TournamentResult
 from live_poker_bench.tournament.scorer import PlacementScorer
+
+if TYPE_CHECKING:
+    from live_poker_bench.logging.progress import ProgressDisplay
 
 
 @dataclass
@@ -36,15 +40,18 @@ class TournamentRunner:
         self,
         config: TournamentConfig,
         agent_manager: AgentManager,
+        progress: "ProgressDisplay | None" = None,
     ) -> None:
         """Initialize the tournament runner.
 
         Args:
             config: Tournament configuration.
             agent_manager: Manager for all agents.
+            progress: Optional progress display for live updates.
         """
         self.config = config
         self.agent_manager = agent_manager
+        self.progress = progress
 
         # Initialize components
         self.deck = Deck(seed=config.seed)
@@ -53,12 +60,16 @@ class TournamentRunner:
         self.hand_logger = HandLogger(config.log_dir)
         self.agent_logger = AgentLogger(config.log_dir)
 
+        # Build seat -> name mapping for progress display
+        self.seat_names: dict[int, str] = {}
+
         # Register agents with scorer and logger
         for seat in agent_manager.get_active_seats():
             agent = agent_manager.get_agent(seat)
             if agent:
                 self.scorer.register_player(seat, agent.name)
                 self.agent_logger.register_agent(seat, agent.name)
+                self.seat_names[seat] = agent.name
 
         # Game state will be created when tournament starts
         self.game: GameState | None = None
@@ -134,9 +145,27 @@ class TournamentRunner:
 
         # Log hand start
         sb, bb = self.blind_schedule.get_blinds(self.hand_number)
+        blind_level = self.blind_schedule.get_level(self.hand_number)
+
+        # Update progress display
+        if self.progress:
+            active_count = len([
+                s for s in self.game.players
+                if not self.game.players[s].has_folded
+            ])
+            self.progress.update_hand(
+                hand_number=self.hand_number,
+                street="preflop",
+                pot_size=self.game.pot,
+                players_active=active_count,
+                blind_level=blind_level,
+                small_blind=sb,
+                big_blind=bb,
+            )
+
         self.hand_logger.start_hand(
             hand_number=self.hand_number,
-            blind_level=self.blind_schedule.get_level(self.hand_number),
+            blind_level=blind_level,
             button_seat=self.game.button_seat,
             small_blind=sb,
             big_blind=bb,
@@ -151,6 +180,9 @@ class TournamentRunner:
             ],
             hole_cards=hole_cards,
         )
+
+        # Start hand for agent logger (per-hand decision logging)
+        self.agent_logger.start_hand(self.hand_number)
 
         # Notify agents of new hand
         self.agent_manager.start_hand(self.hand_number, hole_cards, self.game.button_seat)
@@ -180,6 +212,9 @@ class TournamentRunner:
             pot=result.pot if result else self.game.pot,
             pots_awarded=result.pots_awarded if result else {},
         )
+
+        # End hand in agent logger (writes per-hand agent decision file)
+        self.agent_logger.end_hand(self.hand_number)
 
         # End hand for agents
         results = {}
@@ -211,10 +246,33 @@ class TournamentRunner:
             return
 
         player = self.game.players[action_seat]
+        player_name = self.seat_names.get(action_seat, f"Seat {action_seat}")
         sb, bb = self.blind_schedule.get_blinds(self.hand_number)
+
+        # Capture street BEFORE applying action (apply_action may change it)
+        current_street = self.game.street.value
 
         # Build observation for agent
         obs = self._build_observation(action_seat)
+
+        # Update progress with current street, pot, community cards, and start thinking indicator
+        if self.progress:
+            self.progress.update_street(self.game.street.value)
+            self.progress.update_pot(self.game.pot)
+            # Update community cards for display
+            self.progress.update_community_cards(
+                [str(c) for c in self.game.community_cards]
+            )
+            # Get hole cards for display (convert Card objects to strings)
+            hole_cards = None
+            if player.hole_cards:
+                hole_cards = (str(player.hole_cards[0]), str(player.hole_cards[1]))
+            self.progress.start_thinking(
+                player_name=player_name,
+                seat=action_seat,
+                hole_cards=hole_cards,
+                stack=player.stack,
+            )
 
         # Get action from agent
         agent_action = self.agent_manager.get_action(action_seat, obs)
@@ -225,23 +283,77 @@ class TournamentRunner:
         # Apply action
         success, error = self.game.apply_action(action_seat, game_action)
 
-        if not success:
-            # If action fails, force fold
-            game_action = Action(ActionType.FOLD)
-            self.game.apply_action(action_seat, game_action)
+        forced = agent_action.forced
+        retries = agent_action.retries
 
-        # Log action
+        if not success:
+            # If action fails, try appropriate fallback
+            to_call = self.game.current_bet - player.bet_this_round
+            if to_call == 0:
+                # Can't fold when nothing to call - use check instead
+                game_action = Action(ActionType.CHECK)
+            else:
+                game_action = Action(ActionType.FOLD)
+
+            fallback_success, fallback_error = self.game.apply_action(action_seat, game_action)
+            if not fallback_success:
+                # If fallback also fails, something is seriously wrong - log and skip
+                logging.error(
+                    f"Fallback action failed for seat {action_seat}: {fallback_error}. "
+                    f"Original error: {error}"
+                )
+                return
+            forced = True
+
+        # Log action (only after successful application)
         action_str = str(game_action.action_type.value)
+
+        # Update progress display with action - record in play-by-play
+        if self.progress:
+            # Get hole cards for display
+            hole_cards = None
+            if player.hole_cards:
+                hole_cards = (str(player.hole_cards[0]), str(player.hole_cards[1]))
+            self.progress.record_action(
+                player_name=player_name,
+                action=action_str,
+                amount=game_action.amount,
+                thinking_time_ms=agent_action.thinking_time_ms,
+                forced=forced,
+                retries=retries,
+                hole_cards=hole_cards,
+            )
+
         self.hand_logger.record_action(
-            street=self.game.street.value,
+            street=current_street,
             seat=action_seat,
             action=action_str,
             amount=game_action.amount,
+            forced=forced,
+            retries=retries,
+            thinking_time_ms=agent_action.thinking_time_ms,
         )
+
+        # Log agent decision with full trace (thoughts, tool calls, conversation)
+        trace = self.agent_manager.get_last_trace(action_seat)
+        if trace:
+            self.agent_logger.log_decision(
+                seat=action_seat,
+                hand_number=self.hand_number,
+                street=current_street,
+                observation=trace.get("observation", {}),
+                messages=trace.get("messages", []),
+                tool_calls=trace.get("tool_calls", []),
+                llm_responses=trace.get("llm_responses", []),
+                final_action=trace.get("final_action", {}),
+                thinking_time_ms=trace.get("thinking_time_ms", 0.0),
+                retries=trace.get("retries", 0),
+                error=trace.get("error"),
+            )
 
         # Record to agent memories
         self.agent_manager.record_action(
-            street=self.game.street.value,
+            street=current_street,
             seat=action_seat,
             action=action_str,
             amount=game_action.amount,
@@ -331,12 +443,14 @@ class TournamentRunner:
 
         if agent_action.action == "fold":
             return Action(ActionType.FOLD)
+        elif agent_action.action == "check":
+            return Action(ActionType.CHECK)
         elif agent_action.action == "call":
             if to_call == 0:
                 return Action(ActionType.CHECK)
             call_amount = min(to_call, player.stack)
             is_all_in = call_amount >= player.stack
-            return Action(ActionType.CALL, amount=player.bet_this_round + call_amount, is_all_in=is_all_in)
+            return Action(ActionType.CALL, amount=call_amount, is_all_in=is_all_in)
         elif agent_action.action == "raise":
             raise_to = agent_action.raise_to or obs.min_raise
             # Clamp to valid range
@@ -365,6 +479,11 @@ class TournamentRunner:
                 self.scorer.record_elimination(eliminated[0], self.hand_number)
 
             for seat in eliminated:
+                # Update progress display
+                if self.progress:
+                    player_name = self.seat_names.get(seat, f"Seat {seat}")
+                    self.progress.record_elimination(player_name, self.hand_number)
+
                 self.agent_manager.eliminate_seat(seat)
 
     def save_meta(self) -> None:

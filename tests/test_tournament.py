@@ -276,3 +276,109 @@ class TestTournamentRunner:
 
         # Should have same number of hands with deterministic agents
         assert hands1 == hands2
+
+    def test_call_action_after_blind(self, temp_log_dir):
+        """Test that CALL action is correctly converted when player has posted a blind.
+        
+        This test guards against the bug where a player who posted SB (1 chip)
+        facing a raise to 6 would have their CALL action incorrectly constructed
+        with amount=6 (total) instead of amount=5 (additional chips needed).
+        """
+        from live_poker_bench.engine.actions import Action, ActionType
+        from live_poker_bench.engine.game import Player
+        from live_poker_bench.agents.base import AgentAction, Observation
+        
+        manager = AgentManager()
+        manager.add_agent(1, MockAgent("Agent1"))
+        manager.add_agent(2, MockAggressiveAgent("Agent2"))
+        manager.add_agent(3, MockAggressiveAgent("Agent3"))
+        manager.add_agent(4, MockAggressiveAgent("Agent4"))
+        
+        config = TournamentConfig(
+            num_players=4,
+            starting_stack=200,
+            blind_schedule=[{"hands": None, "sb": 1, "bb": 2}],
+            seed=42,
+            log_dir=temp_log_dir,
+        )
+        
+        runner = TournamentRunner(config, manager)
+        
+        # Initialize game state by starting a hand
+        players = [
+            Player(
+                seat=seat,
+                name=runner.agent_manager.get_agent(seat).name,
+                stack=config.starting_stack,
+            )
+            for seat in runner.agent_manager.get_active_seats()
+        ]
+        
+        from live_poker_bench.engine.deck import Deck
+        from live_poker_bench.engine.blinds import BlindSchedule
+        from live_poker_bench.engine.game import GameState
+        
+        runner.game = GameState(
+            players=players,
+            deck=Deck(seed=config.seed),
+            blind_schedule=BlindSchedule.from_config(config.blind_schedule),
+            button_seat=runner.button_seat,
+        )
+        
+        runner.game.start_hand(1)
+        
+        # Manually set up the scenario: player posted SB (1 chip), facing raise to 6
+        # This simulates the exact bug scenario from hand_001.json
+        player = runner.game.players[2]  # Seat 2 (SB)
+        # Player already posted SB (1 chip)
+        assert player.bet_this_round == 1
+        
+        # Simulate a raise to 6 (someone raised from 2 to 6)
+        runner.game.current_bet = 6
+        runner.game.min_raise = 4
+        
+        # Create observation for the player
+        obs = Observation(
+            hand_number=1,
+            street="preflop",
+            my_seat=2,
+            my_position="SB",
+            my_hole_cards=("Ac", "Js"),
+            my_stack=199,
+            community_cards=(),
+            pot_size=9,
+            current_bet=5,  # Amount to call (6 - 1 = 5)
+            min_raise=10,
+            max_raise=200,
+            small_blind=1,
+            big_blind=2,
+            button_seat=1,
+            players=[],
+            actions_this_hand=[],
+            legal_actions=["fold", "call", "raise"],
+        )
+        
+        # Agent wants to call
+        agent_action = AgentAction(action="call", reasoning="Test call")
+        
+        # Convert action
+        game_action = runner._convert_action(agent_action, player, obs)
+        
+        # Verify the action is correctly constructed
+        assert game_action.action_type == ActionType.CALL
+        # The amount should be 5 (additional chips needed), NOT 6 (total)
+        assert game_action.amount == 5, f"Expected call amount to be 5, got {game_action.amount}"
+        assert not game_action.is_all_in
+        
+        # Verify the action passes validation
+        from live_poker_bench.engine.actions import BettingState, PlayerState, validate_action
+        player_state = player.to_state()
+        betting_state = BettingState(
+            pot=9,
+            current_bet=6,
+            min_raise=4,
+            big_blind=2,
+        )
+        
+        is_valid, error = validate_action(game_action, player_state, betting_state)
+        assert is_valid, f"Action validation failed: {error}"

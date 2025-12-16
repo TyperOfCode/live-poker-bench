@@ -5,8 +5,15 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+# Suppress litellm's verbose output BEFORE importing
+os.environ["LITELLM_LOG"] = "ERROR"
+
 import litellm
 from dotenv import load_dotenv
+
+# Disable litellm's verbose logging
+litellm.suppress_debug_info = True
+litellm.set_verbose = False
 
 
 @dataclass
@@ -21,6 +28,41 @@ class ReasoningSettings:
 
 
 @dataclass
+class ProviderSettings:
+    """Settings for OpenRouter provider preferences.
+    
+    See: https://openrouter.ai/docs/api-reference/parameters
+    """
+
+    order: list[str] | None = None  # Ordered list of provider names to prefer
+    allow_fallbacks: bool | None = None
+    require_parameters: bool | None = None
+    data_collection: str | None = None  # "allow" or "deny"
+    only: list[str] | None = None  # Only use these providers
+    ignore: list[str] | None = None  # Never use these providers
+    quantizations: list[str] | None = None  # Allowed quantization levels
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dict for API call, excluding None values."""
+        result: dict[str, Any] = {}
+        if self.order is not None:
+            result["order"] = self.order
+        if self.allow_fallbacks is not None:
+            result["allow_fallbacks"] = self.allow_fallbacks
+        if self.require_parameters is not None:
+            result["require_parameters"] = self.require_parameters
+        if self.data_collection is not None:
+            result["data_collection"] = self.data_collection
+        if self.only is not None:
+            result["only"] = self.only
+        if self.ignore is not None:
+            result["ignore"] = self.ignore
+        if self.quantizations is not None:
+            result["quantizations"] = self.quantizations
+        return result
+
+
+@dataclass
 class LLMResponse:
     """Response from an LLM call."""
 
@@ -32,6 +74,7 @@ class LLMResponse:
     raw_response: Any = None
     reasoning_content: str | None = None
     reasoning_details: list[dict[str, Any]] | None = None  # For preserving reasoning blocks
+    provider_name: str | None = None  # The provider that served the request (from OpenRouter)
 
 
 @dataclass
@@ -45,6 +88,7 @@ class LLMConfig:
     retry_delay: float = 1.0
     retry_multiplier: float = 2.0
     reasoning: ReasoningSettings = field(default_factory=ReasoningSettings)
+    provider: ProviderSettings | None = None
 
 
 class LLMAdapter:
@@ -75,6 +119,7 @@ class LLMAdapter:
         temperature: float | None = None,
         max_tokens: int | None = None,
         reasoning: ReasoningSettings | None = None,
+        provider: ProviderSettings | None = None,
     ) -> LLMResponse:
         """Make an LLM call with retry logic.
 
@@ -85,6 +130,7 @@ class LLMAdapter:
             temperature: Override temperature for this call.
             max_tokens: Override max_tokens for this call.
             reasoning: Override reasoning settings for this call.
+            provider: Override provider preferences for this call.
 
         Returns:
             LLMResponse with content, tool calls, and usage stats.
@@ -93,6 +139,7 @@ class LLMAdapter:
         temperature = temperature if temperature is not None else self.config.temperature
         max_tokens = max_tokens or self.config.max_tokens
         reasoning = reasoning or self.config.reasoning
+        provider = provider or self.config.provider
 
         last_error: Exception | None = None
         delay = self.config.retry_delay
@@ -124,6 +171,16 @@ class LLMAdapter:
                         kwargs["reasoning"] = reasoning_config
                     if reasoning.include_reasoning:
                         kwargs["include_reasoning"] = True
+
+                # Add provider preferences if specified (use extra_body for OpenRouter)
+                if provider:
+                    provider_dict = provider.to_dict()
+                    if provider_dict:
+                        # OpenRouter expects provider in the request body
+                        # Use extra_body to pass through to the API
+                        if "extra_body" not in kwargs:
+                            kwargs["extra_body"] = {}
+                        kwargs["extra_body"]["provider"] = provider_dict
 
                 response = litellm.completion(**kwargs)
                 latency_ms = (time.time() - start_time) * 1000
@@ -171,6 +228,23 @@ class LLMAdapter:
                 if hasattr(message, "reasoning_details") and message.reasoning_details:
                     reasoning_details = message.reasoning_details
 
+                # Extract provider name from OpenRouter response
+                # OpenRouter includes this in _hidden_params or response headers
+                provider_name = None
+                if hasattr(response, "_hidden_params"):
+                    hidden = response._hidden_params or {}
+                    # Check for provider in various locations
+                    if "openrouter_provider" in hidden:
+                        provider_name = hidden["openrouter_provider"]
+                    elif "model_info" in hidden and isinstance(hidden["model_info"], dict):
+                        provider_name = hidden["model_info"].get("provider")
+                
+                # Also check response headers if available
+                if provider_name is None and hasattr(response, "_response_headers"):
+                    headers = response._response_headers or {}
+                    # OpenRouter may include provider in custom headers
+                    provider_name = headers.get("x-openrouter-provider")
+
                 return LLMResponse(
                     content=message.content,
                     tool_calls=tool_calls,
@@ -180,6 +254,7 @@ class LLMAdapter:
                     raw_response=response,
                     reasoning_content=reasoning_content,
                     reasoning_details=reasoning_details,
+                    provider_name=provider_name,
                 )
 
             except Exception as e:

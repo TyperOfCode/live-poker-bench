@@ -66,6 +66,42 @@ class ReasoningConfig(BaseModel):
     )
 
 
+class ProviderConfig(BaseModel):
+    """Configuration for OpenRouter provider preferences.
+    
+    See: https://openrouter.ai/docs/api-reference/parameters
+    """
+
+    order: list[str] | None = Field(
+        default=None,
+        description="Ordered list of provider names to prefer (e.g., ['anthropic', 'openai', 'together'])"
+    )
+    allow_fallbacks: bool | None = Field(
+        default=None,
+        description="Allow fallback to other providers if preferred ones fail"
+    )
+    require_parameters: bool | None = Field(
+        default=None,
+        description="Require all parameters to be supported by provider"
+    )
+    data_collection: str | None = Field(
+        default=None,
+        description="Data collection preference: 'allow' or 'deny'"
+    )
+    only: list[str] | None = Field(
+        default=None,
+        description="Only use these providers (exclusive list)"
+    )
+    ignore: list[str] | None = Field(
+        default=None,
+        description="Never use these providers"
+    )
+    quantizations: list[str] | None = Field(
+        default=None,
+        description="Allowed quantization levels (e.g., ['bf16', 'fp8'])"
+    )
+
+
 class AgentConfig(BaseModel):
     """Configuration for a single agent."""
 
@@ -74,6 +110,10 @@ class AgentConfig(BaseModel):
     reasoning: ReasoningConfig | None = Field(
         default=None,
         description="Per-agent reasoning config (overrides global)"
+    )
+    provider: ProviderConfig | None = Field(
+        default=None,
+        description="OpenRouter provider preferences for this agent"
     )
 
 

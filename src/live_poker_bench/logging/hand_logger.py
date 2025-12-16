@@ -97,6 +97,9 @@ class HandLogger:
         action: str,
         amount: int | None = None,
         pot_after: int | None = None,
+        forced: bool = False,
+        retries: int = 0,
+        thinking_time_ms: float = 0.0,
     ) -> None:
         """Record an action.
 
@@ -106,6 +109,9 @@ class HandLogger:
             action: The action taken.
             amount: Amount bet/raised (if applicable).
             pot_after: Pot size after the action.
+            forced: Whether this was a forced fold.
+            retries: Number of retries before this action.
+            thinking_time_ms: Time spent thinking in milliseconds.
         """
         if self._current_hand is None:
             return
@@ -119,6 +125,12 @@ class HandLogger:
             action_record["amount"] = amount
         if pot_after is not None:
             action_record["pot_after"] = pot_after
+        if thinking_time_ms > 0:
+            action_record["thinking_time_ms"] = round(thinking_time_ms, 1)
+        if forced:
+            action_record["forced"] = True
+        if retries > 0:
+            action_record["retries"] = retries
 
         self._current_hand.actions.append(action_record)
 

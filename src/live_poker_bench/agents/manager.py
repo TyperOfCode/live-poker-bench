@@ -188,6 +188,20 @@ class AgentManager:
             return agent.get_traces()
         return []
 
+    def get_last_trace(self, seat: int) -> dict[str, Any] | None:
+        """Get the most recent decision trace for an agent.
+
+        Args:
+            seat: The seat number.
+
+        Returns:
+            The last decision trace, or None if not available.
+        """
+        agent = self.agents.get(seat)
+        if isinstance(agent, LLMAgent):
+            return agent.get_last_trace()
+        return None
+
     @classmethod
     def from_config(
         cls,
@@ -216,12 +230,16 @@ class AgentManager:
             agent_reasoning = config.get("reasoning")
             reasoning = agent_reasoning if agent_reasoning is not None else global_reasoning
 
+            # Per-agent provider preferences
+            provider = config.get("provider")
+
             agent = LLMAgent(
                 name=name,
                 model=model,
                 seat=seat,
                 max_retries=config.get("max_retries", global_settings.get("max_retries", 3)),
                 reasoning=reasoning,
+                provider=provider,
             )
             manager.add_agent(seat, agent)
 
