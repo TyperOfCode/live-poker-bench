@@ -1,0 +1,419 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup Project Structure and Dependencies",
+      "description": "Initialize the project structure with pyproject.toml, create the directory layout as specified in the PRD (src/live_poker_bench/ with engine, agents, llm, tournament, logging subdirectories), and configure dependencies (litellm, treys, python-dotenv, pydantic).",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "pyproject.toml contains all required dependencies",
+        "Directory structure matches PRD specification",
+        "Package is installable with `pip install -e .`",
+        ".env.example file created for OPENROUTER_API_KEY"
+      ],
+      "testStrategy": "Verify installation and imports work correctly"
+    },
+    {
+      "id": 2,
+      "title": "Implement Seeded Deck Module",
+      "description": "Create the deck.py module with a seeded deck that supports deterministic shuffling. Must support reproducible card dealing across tournament runs using seed_base + run_number pattern.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Deck initializes with 52 cards",
+        "Shuffle is deterministic given the same seed",
+        "Different seeds produce different orderings",
+        "Deal method returns cards from top of deck"
+      ],
+      "testStrategy": "Unit tests verifying determinism with same seeds and different results with different seeds"
+    },
+    {
+      "id": 3,
+      "title": "Implement Hand Evaluator Module",
+      "description": "Create evaluator.py that wraps the treys library for hand evaluation. Should convert between internal card representations and treys format, and evaluate 5-7 card hands to determine winners.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Can convert card strings (e.g., 'Ah', 'Kd') to treys format",
+        "Can evaluate 5-card hands and return rank",
+        "Can compare two hands to determine winner",
+        "Supports 7-card evaluation (best 5 of 7)"
+      ],
+      "testStrategy": "Unit tests with known hand rankings and showdown scenarios"
+    },
+    {
+      "id": 4,
+      "title": "Implement Blind Schedule Management",
+      "description": "Create blinds.py to manage the blind schedule progression. Tracks current level based on hand count and returns SB/BB values. Supports the 6-level structure defined in PRD.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Loads blind schedule from config",
+        "Returns correct SB/BB for current hand count",
+        "Handles level transitions correctly",
+        "Level 6 (final) continues indefinitely"
+      ],
+      "testStrategy": "Unit tests for level transitions at boundary hand counts"
+    },
+    {
+      "id": 5,
+      "title": "Implement Action Validation Module",
+      "description": "Create actions.py to define valid poker actions (fold, call, raise) and validate them against the current game state. Must enforce NLHE betting rules including min-raise amounts.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Action enum with fold, call, raise types",
+        "Validates raise amounts (min-raise, all-in)",
+        "Returns list of legal actions for a player",
+        "Handles all-in scenarios correctly"
+      ],
+      "testStrategy": "Unit tests for various betting scenarios including edge cases"
+    },
+    {
+      "id": 6,
+      "title": "Implement Core Game State Engine",
+      "description": "Create game.py as the central game state manager. Handles betting rounds (preflop, flop, turn, river), pot management, player stacks, and street transitions. Orchestrates a complete hand from deal to showdown.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [2, 3, 4, 5],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Manages complete hand lifecycle",
+        "Correct pot calculation and side pots",
+        "Proper betting round flow (SB, BB, action to BB)",
+        "Handles all-in and folding correctly",
+        "Determines winner at showdown",
+        "Button rotation between hands"
+      ],
+      "testStrategy": "Integration tests simulating complete hands with various outcomes"
+    },
+    {
+      "id": 7,
+      "title": "Implement Agent Memory System",
+      "description": "Create memory.py with the AgentMemory class and HandRecord structure. Stores what each agent has legally observed during play - their hole cards, community cards, all public actions, and showdown reveals.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "AgentMemory stores list of HandRecords",
+        "HandRecord captures position, hole cards, community cards, actions, showdown info",
+        "Memory only contains legally observable information",
+        "Supports querying by hand number, opponent, outcome"
+      ],
+      "testStrategy": "Unit tests verifying correct information storage and query results"
+    },
+    {
+      "id": 8,
+      "title": "Implement Memory Query Tools",
+      "description": "Create tools.py with the three memory tools: recall_opponent_actions, recall_my_hands, and search_observations. These are the only tools agents can use to query their memory.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [7],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "recall_opponent_actions returns past actions by a specific opponent",
+        "recall_my_hands returns agent's own hand history",
+        "search_observations allows free-text search over observations",
+        "Tools return structured data suitable for LLM consumption"
+      ],
+      "testStrategy": "Unit tests with populated memory verifying correct query results"
+    },
+    {
+      "id": 9,
+      "title": "Implement LLM Adapter with litellm",
+      "description": "Create adapter.py that wraps litellm for unified model access via OpenRouter. Handles API key loading from .env, implements retry logic for API failures, and provides a clean interface for agent calls.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Loads OPENROUTER_API_KEY from .env",
+        "Supports any model string (openrouter/provider/model)",
+        "Implements exponential backoff retry on failures",
+        "Returns structured responses with usage stats"
+      ],
+      "testStrategy": "Integration test with mock responses and error scenarios"
+    },
+    {
+      "id": 10,
+      "title": "Implement Base Agent Interface",
+      "description": "Create base.py with the BaseAgent abstract class. Defines the interface all agents must implement, including receiving observations and returning actions.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Abstract base class with get_action method",
+        "Defines observation input format",
+        "Defines action output format (fold/call/raise with reasoning)",
+        "Supports agent name and configuration"
+      ],
+      "testStrategy": "Ensure interface is correctly defined and subclassable"
+    },
+    {
+      "id": 11,
+      "title": "Implement LLM-Backed Agent with Tool Loop",
+      "description": "Create llm_agent.py implementing the LLMAgent class. Handles the multi-turn agentic workflow where agents can make multiple LLM calls with tool use before returning a final action. Implements retry logic for invalid actions.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [8, 9, 10],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Sends observation to LLM with available tools",
+        "Handles tool calls and provides responses",
+        "Continues until agent returns final action",
+        "Validates action and retries up to 3 times",
+        "Forces fold after max retries",
+        "Logs all reasoning traces"
+      ],
+      "testStrategy": "Integration tests with mock LLM responses including tool use and invalid actions"
+    },
+    {
+      "id": 12,
+      "title": "Implement Agent Manager",
+      "description": "Create agent management system that instantiates agents from config, routes observations to correct agents, manages per-seat memory, and collects validated actions.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [6, 11],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Instantiates agents from config list",
+        "Assigns agents to seats",
+        "Routes observations to correct agent based on seat",
+        "Updates agent memory after each hand",
+        "Handles agent elimination when busted"
+      ],
+      "testStrategy": "Integration test verifying correct agent routing and memory updates"
+    },
+    {
+      "id": 13,
+      "title": "Implement Hand Logger",
+      "description": "Create hand_logger.py to log complete hand histories in JSON format. Captures all actions, hole cards, community cards, showdown info, and results per hand.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Creates hand_NNN.json files in tournament directory",
+        "Includes all fields specified in PRD (hand_number, blind_level, players, etc.)",
+        "Properly records actions with street, seat, action, amount",
+        "Records showdown cards only when revealed"
+      ],
+      "testStrategy": "Verify JSON output matches expected schema"
+    },
+    {
+      "id": 14,
+      "title": "Implement Agent Trace Logger",
+      "description": "Create agent_logger.py to capture full reasoning traces per agent. Logs observations sent, tool calls made, raw LLM responses, final actions, and retry attempts.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Creates seat_N_agentname.json files",
+        "Logs each decision point with observation, tool calls, responses",
+        "Captures retry attempts when actions are invalid",
+        "Includes token usage per call"
+      ],
+      "testStrategy": "Verify trace output captures all agent interactions"
+    },
+    {
+      "id": 15,
+      "title": "Implement Summary Report Generator",
+      "description": "Create reporter.py to aggregate results across K tournament runs. Generates the summary.json with leaderboard, average placements, win counts, and telemetry data.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Aggregates results from K tournament runs",
+        "Calculates average placement per agent",
+        "Counts wins per agent",
+        "Includes telemetry (total hands, invalid action rates)",
+        "Outputs summary.json in correct format"
+      ],
+      "testStrategy": "Unit test with mock tournament results verifying correct aggregation"
+    },
+    {
+      "id": 16,
+      "title": "Implement Placement Scorer",
+      "description": "Create scorer.py to calculate placement scores for eliminated players. Handles tracking elimination order and converting to placement percentile.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Tracks elimination order during tournament",
+        "Assigns placements (1st through Nth)",
+        "Calculates placement percentile",
+        "Handles tie-breaking for same-hand busts"
+      ],
+      "testStrategy": "Unit tests for various elimination scenarios"
+    },
+    {
+      "id": 17,
+      "title": "Implement Tournament Runner",
+      "description": "Create runner.py to orchestrate complete tournaments. Loads config, initializes agents, runs hands until one player remains, handles blind progression, and collects results.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [6, 12, 13, 14, 16],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Runs complete tournament from config",
+        "Manages blind level progression by hand count",
+        "Eliminates players at 0 chips",
+        "Continues until single winner",
+        "Logs all hands and agent traces"
+      ],
+      "testStrategy": "Integration test running a complete tournament"
+    },
+    {
+      "id": 18,
+      "title": "Implement Multi-Run Tournament Manager",
+      "description": "Extend runner.py to support K tournament runs with different seeds. Manages seed progression (seed_base + run_number), stores per-run results, and triggers summary generation.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [15, 17],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Runs K tournaments with config.num_runs",
+        "Uses seed_base + run_number for each run",
+        "Creates tournament_NNN/ directories for each run",
+        "Generates summary.json after all runs complete"
+      ],
+      "testStrategy": "Integration test running multiple tournaments and verifying summary"
+    },
+    {
+      "id": 19,
+      "title": "Implement Configuration Loader",
+      "description": "Create config loading in main.py using Pydantic models. Validates tournament settings, agent definitions, and output options from config.json.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Pydantic models for all config sections",
+        "Loads and validates config.json",
+        "Provides typed access to all settings",
+        "Clear error messages for invalid config"
+      ],
+      "testStrategy": "Unit tests with valid and invalid config files"
+    },
+    {
+      "id": 20,
+      "title": "Implement CLI Entry Point",
+      "description": "Create main.py as the entry point for `python -m live_poker_bench`. Loads config, initializes logging, runs the tournament manager, and outputs results.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [18, 19],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Runs with `python -m live_poker_bench`",
+        "Loads config.json from current directory",
+        "Initializes all components",
+        "Runs full benchmark and outputs results",
+        "Handles errors gracefully with informative messages"
+      ],
+      "testStrategy": "End-to-end test running the full benchmark"
+    },
+    {
+      "id": 21,
+      "title": "Create Example Configuration File",
+      "description": "Create a config.json with the 6-agent example configuration from the PRD. Include all tournament settings, blind schedule, and agent definitions.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [19],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "config.json matches PRD example",
+        "All 6 agents configured with OpenRouter models",
+        "Blind schedule matches PRD specification",
+        "Settings are documented with comments (in README)"
+      ],
+      "testStrategy": "Verify config loads without errors"
+    },
+    {
+      "id": 22,
+      "title": "Implement Observation Builder",
+      "description": "Create a module to build the observation/prompt sent to agents. Includes current game state, their hole cards, community cards, pot size, stack sizes, and position information.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [6, 7],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Builds observation with all required game state",
+        "Includes only legally observable information",
+        "Clear formatting for LLM consumption",
+        "Shows stack sizes in BB notation option"
+      ],
+      "testStrategy": "Unit tests verifying observation content at various game states"
+    },
+    {
+      "id": 23,
+      "title": "Write Unit Tests for Engine Components",
+      "description": "Create test_engine.py with comprehensive unit tests for deck, evaluator, blinds, actions, and game modules.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [6],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Tests for seeded deck determinism",
+        "Tests for hand evaluation correctness",
+        "Tests for blind level transitions",
+        "Tests for action validation",
+        "Tests for complete hand scenarios"
+      ],
+      "testStrategy": "Run pytest and achieve >80% coverage on engine/"
+    },
+    {
+      "id": 24,
+      "title": "Write Unit Tests for Agent Components",
+      "description": "Create test_agents.py with tests for memory system, tools, and LLM agent behavior.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [11],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Tests for memory storage and queries",
+        "Tests for tool responses",
+        "Tests for agent retry logic",
+        "Tests with mock LLM responses"
+      ],
+      "testStrategy": "Run pytest and achieve >80% coverage on agents/"
+    },
+    {
+      "id": 25,
+      "title": "Write Integration Tests for Tournament",
+      "description": "Create test_tournament.py with integration tests that run complete tournaments with mock or cheap LLM calls.",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [18],
+      "subtasks": [],
+      "acceptanceCriteria": [
+        "Tests for single tournament completion",
+        "Tests for multi-run benchmark completion",
+        "Tests for log file generation",
+        "Tests for summary report accuracy"
+      ],
+      "testStrategy": "Run integration tests with mock LLM adapter"
+    }
+  ],
+  "metadata": {
+    "projectName": "LivePokerBench",
+    "createdAt": "2025-12-16",
+    "sourceDocument": "docs/plans/2025-12-16-live-poker-bench-prd.md",
+    "totalTasks": 25
+  }
+}
