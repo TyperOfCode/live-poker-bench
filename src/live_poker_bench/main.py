@@ -41,7 +41,8 @@ def run_tournament(
 
     # Create agent manager from config
     agent_manager = AgentManager.from_config(
-        [agent.model_dump() for agent in config.agents]
+        agent_configs=[agent.model_dump() for agent in config.agents],
+        global_settings=config.agent_settings.model_dump(),
     )
 
     # Create tournament config
@@ -131,8 +132,28 @@ def main() -> None:
         default="config.json",
         help="Path to configuration file (default: config.json)",
     )
+    parser.add_argument(
+        "--health",
+        action="store_true",
+        help="Run health check on configuration and agents",
+    )
+    parser.add_argument(
+        "--health-full",
+        action="store_true",
+        help="Run full health check including agent connectivity tests",
+    )
 
     args = parser.parse_args()
+
+    # Handle health check
+    if args.health or args.health_full:
+        from live_poker_bench.config_health import run_health_check
+        success = run_health_check(
+            config_path=args.config,
+            verbose=True,
+            full=args.health_full,
+        )
+        sys.exit(0 if success else 1)
 
     try:
         run_benchmark(args.config)

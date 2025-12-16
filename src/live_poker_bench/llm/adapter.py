@@ -10,6 +10,17 @@ from dotenv import load_dotenv
 
 
 @dataclass
+class ReasoningSettings:
+    """Settings for model reasoning/thinking capabilities."""
+
+    enabled: bool = False
+    effort: str | None = None  # "low", "medium", "high", "xhigh"
+    max_tokens: int | None = None
+    include_reasoning: bool = False
+    preserve_blocks: bool = True  # Preserve reasoning_details for multi-turn (required for Gemini)
+
+
+@dataclass
 class LLMResponse:
     """Response from an LLM call."""
 
@@ -19,6 +30,8 @@ class LLMResponse:
     model: str = ""
     latency_ms: float = 0.0
     raw_response: Any = None
+    reasoning_content: str | None = None
+    reasoning_details: list[dict[str, Any]] | None = None  # For preserving reasoning blocks
 
 
 @dataclass
@@ -31,6 +44,7 @@ class LLMConfig:
     max_retries: int = 3
     retry_delay: float = 1.0
     retry_multiplier: float = 2.0
+    reasoning: ReasoningSettings = field(default_factory=ReasoningSettings)
 
 
 class LLMAdapter:
@@ -60,6 +74,7 @@ class LLMAdapter:
         model: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        reasoning: ReasoningSettings | None = None,
     ) -> LLMResponse:
         """Make an LLM call with retry logic.
 
@@ -69,6 +84,7 @@ class LLMAdapter:
             model: Override model for this call.
             temperature: Override temperature for this call.
             max_tokens: Override max_tokens for this call.
+            reasoning: Override reasoning settings for this call.
 
         Returns:
             LLMResponse with content, tool calls, and usage stats.
@@ -76,6 +92,7 @@ class LLMAdapter:
         model = model or self.config.model
         temperature = temperature if temperature is not None else self.config.temperature
         max_tokens = max_tokens or self.config.max_tokens
+        reasoning = reasoning or self.config.reasoning
 
         last_error: Exception | None = None
         delay = self.config.retry_delay
@@ -95,6 +112,18 @@ class LLMAdapter:
                 if tools:
                     kwargs["tools"] = tools
                     kwargs["tool_choice"] = "auto"
+
+                # Add reasoning parameters if enabled
+                if reasoning.enabled:
+                    reasoning_config: dict[str, Any] = {}
+                    if reasoning.effort:
+                        reasoning_config["effort"] = reasoning.effort
+                    if reasoning.max_tokens:
+                        reasoning_config["max_tokens"] = reasoning.max_tokens
+                    if reasoning_config:
+                        kwargs["reasoning"] = reasoning_config
+                    if reasoning.include_reasoning:
+                        kwargs["include_reasoning"] = True
 
                 response = litellm.completion(**kwargs)
                 latency_ms = (time.time() - start_time) * 1000
@@ -124,6 +153,23 @@ class LLMAdapter:
                         "completion_tokens": response.usage.completion_tokens,
                         "total_tokens": response.usage.total_tokens,
                     }
+                    # Include reasoning tokens if present
+                    if hasattr(response.usage, "reasoning_tokens"):
+                        usage["reasoning_tokens"] = response.usage.reasoning_tokens
+
+                # Extract reasoning content if present
+                reasoning_content = None
+                if hasattr(message, "reasoning_content"):
+                    reasoning_content = message.reasoning_content
+                elif hasattr(message, "reasoning") and message.reasoning:
+                    # Some models return reasoning in a different format
+                    reasoning_content = message.reasoning
+
+                # Extract reasoning_details for multi-turn preservation (Gemini, etc.)
+                # See: https://openrouter.ai/docs/guides/best-practices/reasoning-tokens#preserving-reasoning-blocks
+                reasoning_details = None
+                if hasattr(message, "reasoning_details") and message.reasoning_details:
+                    reasoning_details = message.reasoning_details
 
                 return LLMResponse(
                     content=message.content,
@@ -132,6 +178,8 @@ class LLMAdapter:
                     model=model,
                     latency_ms=latency_ms,
                     raw_response=response,
+                    reasoning_content=reasoning_content,
+                    reasoning_details=reasoning_details,
                 )
 
             except Exception as e:
@@ -206,11 +254,16 @@ class LLMAdapter:
                 })
 
             # Add assistant message with tool calls
-            current_messages.append({
+            # Preserve reasoning_details for multi-turn (required for Gemini, Anthropic, etc.)
+            # See: https://openrouter.ai/docs/guides/best-practices/reasoning-tokens#preserving-reasoning-blocks
+            assistant_msg: dict[str, Any] = {
                 "role": "assistant",
                 "content": response.content,
                 "tool_calls": response.tool_calls,
-            })
+            }
+            if response.reasoning_details and self.config.reasoning.preserve_blocks:
+                assistant_msg["reasoning_details"] = response.reasoning_details
+            current_messages.append(assistant_msg)
 
             # Add tool results
             current_messages.extend(tool_results)

@@ -43,11 +43,38 @@ class TournamentConfig(BaseModel):
         return v
 
 
+class ReasoningConfig(BaseModel):
+    """Configuration for model reasoning/thinking."""
+
+    enabled: bool = Field(default=False, description="Enable reasoning for supported models")
+    effort: str | None = Field(
+        default=None,
+        description="Reasoning effort level: 'low', 'medium', 'high', 'xhigh' (model-dependent)"
+    )
+    max_tokens: int | None = Field(
+        default=None,
+        ge=1,
+        description="Maximum tokens for reasoning output"
+    )
+    include_reasoning: bool = Field(
+        default=False,
+        description="Include reasoning content in response"
+    )
+    preserve_blocks: bool = Field(
+        default=True,
+        description="Preserve reasoning_details blocks for multi-turn (required for Gemini)"
+    )
+
+
 class AgentConfig(BaseModel):
     """Configuration for a single agent."""
 
     name: str
     model: str = Field(default="openrouter/openai/gpt-4o")
+    reasoning: ReasoningConfig | None = Field(
+        default=None,
+        description="Per-agent reasoning config (overrides global)"
+    )
 
 
 class AgentSettingsConfig(BaseModel):
@@ -55,6 +82,10 @@ class AgentSettingsConfig(BaseModel):
 
     max_retries: int = Field(default=3, ge=1, description="Max retries for invalid actions")
     retry_on_invalid: bool = Field(default=True)
+    reasoning: ReasoningConfig | None = Field(
+        default=None,
+        description="Default reasoning config (fallback if agent doesn't specify)"
+    )
 
 
 class OutputConfig(BaseModel):

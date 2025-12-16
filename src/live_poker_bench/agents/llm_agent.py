@@ -8,7 +8,7 @@ from typing import Any
 from live_poker_bench.agents.base import AgentAction, BaseAgent, Observation
 from live_poker_bench.agents.memory import AgentMemory
 from live_poker_bench.agents.tools import TOOL_DEFINITIONS, execute_tool
-from live_poker_bench.llm.adapter import LLMAdapter, LLMConfig
+from live_poker_bench.llm.adapter import LLMAdapter, LLMConfig, ReasoningSettings
 
 
 SYSTEM_PROMPT = """You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.
@@ -58,6 +58,7 @@ class LLMAgent(BaseAgent):
         seat: int | None = None,
         max_retries: int = 3,
         config: dict[str, Any] | None = None,
+        reasoning: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the LLM agent.
 
@@ -67,14 +68,31 @@ class LLMAgent(BaseAgent):
             seat: The agent's seat number (set later if not known).
             max_retries: Maximum retries for invalid actions.
             config: Additional configuration.
+            reasoning: Reasoning configuration dict with keys:
+                - enabled: bool - Enable reasoning for supported models
+                - effort: str - "low", "medium", "high", or "xhigh"
+                - max_tokens: int - Max tokens for reasoning
+                - include_reasoning: bool - Include reasoning in response
+                - preserve_blocks: bool - Preserve reasoning_details for multi-turn (required for Gemini)
         """
         super().__init__(name, config)
         self.model = model
         self.seat = seat
         self.max_retries = max_retries
 
+        # Build reasoning settings
+        reasoning_settings = ReasoningSettings()
+        if reasoning:
+            reasoning_settings = ReasoningSettings(
+                enabled=reasoning.get("enabled", False),
+                effort=reasoning.get("effort"),
+                max_tokens=reasoning.get("max_tokens"),
+                include_reasoning=reasoning.get("include_reasoning", False),
+                preserve_blocks=reasoning.get("preserve_blocks", True),
+            )
+
         # Initialize LLM adapter
-        llm_config = LLMConfig(model=model)
+        llm_config = LLMConfig(model=model, reasoning=reasoning_settings)
         self.llm = LLMAdapter(llm_config)
 
         # Memory will be initialized when seat is set
@@ -224,11 +242,15 @@ class LLMAgent(BaseAgent):
                 trace.tool_calls.extend(tool_calls)
                 trace.llm_responses.append({
                     "content": response.content,
+                    "reasoning_content": response.reasoning_content,
                     "usage": response.usage,
                     "latency_ms": response.latency_ms,
                 })
 
-                if not response.content:
+                # For thinking models, the response may be in reasoning_content instead of content
+                response_text = response.content or response.reasoning_content
+
+                if not response_text:
                     retries += 1
                     trace.retries = retries
                     messages.append({
@@ -238,13 +260,13 @@ class LLMAgent(BaseAgent):
                     continue
 
                 # Parse the action
-                action = self._parse_action(response.content, observation)
+                action = self._parse_action(response_text, observation)
                 if action is None:
                     retries += 1
                     trace.retries = retries
                     messages.append({
                         "role": "assistant",
-                        "content": response.content,
+                        "content": response_text,
                     })
                     messages.append({
                         "role": "user",
@@ -259,7 +281,7 @@ class LLMAgent(BaseAgent):
                     trace.retries = retries
                     messages.append({
                         "role": "assistant",
-                        "content": response.content,
+                        "content": response_text,
                     })
                     messages.append({
                         "role": "user",

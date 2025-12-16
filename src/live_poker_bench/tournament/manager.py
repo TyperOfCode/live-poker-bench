@@ -19,6 +19,7 @@ class MultiRunManager:
         blind_schedule: list[dict[str, Any]],
         agent_configs: list[dict[str, Any]],
         log_dir: Path,
+        agent_settings: dict[str, Any] | None = None,
     ) -> None:
         """Initialize the multi-run manager.
 
@@ -29,12 +30,14 @@ class MultiRunManager:
             blind_schedule: Blind schedule configuration.
             agent_configs: List of agent configurations.
             log_dir: Base directory for all logs.
+            agent_settings: Global agent settings including reasoning config.
         """
         self.num_runs = num_runs
         self.seed_base = seed_base
         self.starting_stack = starting_stack
         self.blind_schedule = blind_schedule
         self.agent_configs = agent_configs
+        self.agent_settings = agent_settings or {}
         self.log_dir = log_dir
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -86,7 +89,10 @@ class MultiRunManager:
         run_dir.mkdir(parents=True, exist_ok=True)
 
         # Create fresh agent manager for this run
-        agent_manager = AgentManager.from_config(self.agent_configs)
+        agent_manager = AgentManager.from_config(
+            agent_configs=self.agent_configs,
+            global_settings=self.agent_settings,
+        )
 
         # Create tournament config
         config = TournamentConfig(

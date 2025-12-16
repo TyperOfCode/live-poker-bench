@@ -189,26 +189,39 @@ class AgentManager:
         return []
 
     @classmethod
-    def from_config(cls, agent_configs: list[dict[str, Any]]) -> "AgentManager":
+    def from_config(
+        cls,
+        agent_configs: list[dict[str, Any]],
+        global_settings: dict[str, Any] | None = None,
+    ) -> "AgentManager":
         """Create an AgentManager from configuration.
 
         Args:
-            agent_configs: List of agent configurations with name and model.
+            agent_configs: List of agent configurations with name, model, and optional reasoning.
+            global_settings: Global agent settings including default reasoning config.
 
         Returns:
             Configured AgentManager.
         """
         manager = cls()
+        global_settings = global_settings or {}
+        global_reasoning = global_settings.get("reasoning", {})
+
         for i, config in enumerate(agent_configs):
             seat = i + 1
             name = config.get("name", f"Agent_{seat}")
             model = config.get("model", "openrouter/openai/gpt-4o")
 
+            # Per-agent reasoning overrides global reasoning
+            agent_reasoning = config.get("reasoning")
+            reasoning = agent_reasoning if agent_reasoning is not None else global_reasoning
+
             agent = LLMAgent(
                 name=name,
                 model=model,
                 seat=seat,
-                max_retries=config.get("max_retries", 3),
+                max_retries=config.get("max_retries", global_settings.get("max_retries", 3)),
+                reasoning=reasoning,
             )
             manager.add_agent(seat, agent)
 
