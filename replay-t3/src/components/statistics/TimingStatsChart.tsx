@@ -77,7 +77,10 @@ export function TimingStatsChart({ agents }: TimingStatsChartProps) {
           }}
           labelStyle={{ color: "#F3F4F6" }}
           formatter={(value) => [`${Number(value).toFixed(2)}s`, "Avg Time"]}
-          labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName ?? ""}
+          labelFormatter={(_, payload) =>
+            (payload?.[0]?.payload as { fullName?: string } | undefined)
+              ?.fullName ?? ""
+          }
         />
         <Legend
           formatter={() => (

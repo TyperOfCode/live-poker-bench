@@ -31,7 +31,7 @@ interface ActionBreakdownChartProps {
 }
 
 export function ActionBreakdownChart({ data }: ActionBreakdownChartProps) {
-  const total = Object.values(data).reduce((a, b) => a + b, 0);
+  const total = (Object.values(data) as number[]).reduce((a, b) => a + b, 0);
 
   if (total === 0) {
     return (
@@ -41,13 +41,15 @@ export function ActionBreakdownChart({ data }: ActionBreakdownChartProps) {
     );
   }
 
-  const chartData = Object.entries(data)
+  const chartData = (
+    Object.entries(data) as [keyof ActionDistribution, number][]
+  )
     .filter(([, value]) => value > 0)
     .map(([key, value]) => ({
-      name: LABELS[key as keyof ActionDistribution],
+      name: LABELS[key],
       value,
       percentage: ((value / total) * 100).toFixed(1),
-      color: COLORS[key as keyof ActionDistribution],
+      color: COLORS[key],
     }));
 
   return (

@@ -46,10 +46,9 @@ export function SummaryContent({ tournamentId }: SummaryContentProps) {
     );
   }
 
-  const totalActions = Object.values(stats.actionDistribution).reduce(
-    (a, b) => a + b,
-    0
-  );
+  const totalActions = (
+    Object.values(stats.actionDistribution) as number[]
+  ).reduce((a, b) => a + b, 0);
   const totalTokens = stats.agentStats.reduce(
     (sum, a) => sum + a.totalPromptTokens + a.totalCompletionTokens,
     0

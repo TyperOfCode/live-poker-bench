@@ -104,10 +104,13 @@ export function PlacementDistributionChart({
             const placement = String(name).replace("place_", "");
             return [Number(value), `${getOrdinal(Number(placement))} Place`];
           }}
-          labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName ?? ""}
+          labelFormatter={(_, payload) =>
+            (payload?.[0]?.payload as { fullName?: string } | undefined)
+              ?.fullName ?? ""
+          }
         />
         <Legend
-          formatter={(value) => {
+          formatter={(value: string) => {
             const placement = value.replace("place_", "");
             return (
               <span className="text-sm text-gray-300">

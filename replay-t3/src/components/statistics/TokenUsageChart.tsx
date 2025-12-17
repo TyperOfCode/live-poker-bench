@@ -74,7 +74,10 @@ export function TokenUsageChart({ agents }: TokenUsageChartProps) {
             `${Number(value).toLocaleString()}K tokens`,
             name === "prompt" ? "Prompt" : "Completion",
           ]}
-          labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName ?? ""}
+          labelFormatter={(_, payload) =>
+            (payload?.[0]?.payload as { fullName?: string } | undefined)
+              ?.fullName ?? ""
+          }
         />
         <Legend
           formatter={(value) => (
