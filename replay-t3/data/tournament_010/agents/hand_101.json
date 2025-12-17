@@ -1,0 +1,129 @@
+{
+  "hand_number": 101,
+  "decisions": {
+    "5": [
+      {
+        "seat": 5,
+        "agent_name": "GPT-OSS-120B",
+        "hand_number": 101,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 101,
+          "street": "preflop",
+          "my_seat": 5,
+          "my_position": "BTN",
+          "my_hole_cards": [
+            "3d",
+            "2d"
+          ],
+          "my_stack": 174,
+          "community_cards": [],
+          "pot_size": 96,
+          "current_bet": 32,
+          "min_raise": 128,
+          "max_raise": 206,
+          "small_blind": 32,
+          "big_blind": 64,
+          "button_seat": 5,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 672,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 174,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_sb",
+              "amount": 32
+            },
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "post_bb",
+              "amount": 64
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #101 - PREFLOP ===\n\nYour Position: BTN (Seat 5)\nYour Cards: 3d 2d\nYour Stack: 174 chips (2.7 BB)\n\nBlinds: 32/64\nPot: 96 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 672 chips\n  Seat 2: Kimi-K2 - 0 chips (folded)\n  Seat 3: DeepSeek-V3.2 - 0 chips (folded)\n  Seat 4: MiniMax-M2 - 0 chips (folded)\n  Seat 5: GPT-OSS-120B - 174 chips\n\nActions this hand:\n  preflop: Seat 5 post_sb 32\n  preflop: Seat 1 post_bb 64\n\nAmount to call: 32\nMinimum raise to: 128\nLegal actions: fold, call, raise"
+          }
+        ],
+        "tool_calls": [],
+        "llm_responses": [
+          {
+            "content": "{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"With only 3d2d and a short stack of 2.7 BB, folding is the correct push/fold decision. The hand has virtually no showdown value and a raise would risk most of our chips.\"\n}",
+            "reasoning_content": "We have BTN with 3d2d, stack 174, blinds 32/64, pot 96 (includes small blind 32 and big blind 64). We are on the button, after SB posted 32 (but SB is us? Wait seat5 is us, position BTN, but action list shows seat5 post_sb 32, seat1 post_bb 64. So seat5 is small blind? Actually button is seat5, but they posted small blind? That seems contradictory: Usually button is not small blind. But maybe table has 2 players left: seat5 is BTN and also SB (since only 2 players left). In heads-up, BTN is SB and BB. So seat5 is SB, seat1 is BB. So we are small blind with 3d2d, stack 174, amount to call is 32 (to complete SB? Actually we already posted SB 32, amount to call is 32 to call BB's 64? Wait we posted 32, BB posted 64, so to call we need to put 32 more to match 64. Yes amount to call 32. Minimum raise to 128 (i.e., total bet 128). Our stack 174, so raise to 128 is possible. Hand 3d2d is very weak. In heads-up with 2.7 BB, we should likely fold or maybe shove? With 2.7 BB, many push/fold strategies: 3d2d is worst hand, you should fold. So action: fold.\n\nWe need JSON with action \"fold\", raise_to null, reasoning.\n\n",
+            "usage": {
+              "prompt_tokens": 878,
+              "completion_tokens": 411,
+              "total_tokens": 1289
+            },
+            "latency_ms": 993.0438995361328
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "With only 3d2d and a short stack of 2.7 BB, folding is the correct push/fold decision. The hand has virtually no showdown value and a raise would risk most of our chips.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 993.3,
+        "retries": 0
+      }
+    ]
+  },
+  "summary": {
+    "total_decisions": 1,
+    "total_tool_calls": 0,
+    "total_retries": 0,
+    "agents_acted": [
+      5
+    ]
+  }
+}

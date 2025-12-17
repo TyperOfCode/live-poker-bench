@@ -1,0 +1,192 @@
+{
+  "hand_number": 116,
+  "decisions": {
+    "1": [
+      {
+        "seat": 1,
+        "agent_name": "Kimi-K2 Thinking",
+        "hand_number": 116,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 116,
+          "street": "preflop",
+          "my_seat": 1,
+          "my_position": "BTN",
+          "my_hole_cards": [
+            "8h",
+            "Ad"
+          ],
+          "my_stack": 576,
+          "community_cards": [],
+          "pot_size": 96,
+          "current_bet": 32,
+          "min_raise": 128,
+          "max_raise": 608,
+          "small_blind": 32,
+          "big_blind": 64,
+          "button_seat": 1,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 576,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 270,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "post_sb",
+              "amount": 32
+            },
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_bb",
+              "amount": 64
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #116 - PREFLOP ===\n\nYour Position: BTN (Seat 1)\nYour Cards: 8h Ad\nYour Stack: 576 chips (9.0 BB)\n\nBlinds: 32/64\nPot: 96 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 576 chips\n  Seat 2: Kimi-K2 - 0 chips (folded)\n  Seat 3: DeepSeek-V3.2 - 0 chips (folded)\n  Seat 4: MiniMax-M2 - 0 chips (folded)\n  Seat 5: GPT-OSS-120B - 270 chips\n\nActions this hand:\n  preflop: Seat 1 post_sb 32\n  preflop: Seat 5 post_bb 64\n\nAmount to call: 32\nMinimum raise to: 128\nLegal actions: fold, call, raise"
+          },
+          {
+            "role": "assistant",
+            "content": "  We are playing a tournament. Current hand: #116. We are on the Button (BTN) with 576 chips (9.0 BB). The blinds are 32/64. Our stack is 576 chips. The pot is 96 chips (32 from small blind, 64 from big blind). We have Ad8h.\n\nWe posted the small blind (32). So we have 32 chips in the pot already. The big blind is 64. The big blind player (Seat 5) has 270 chips (4.2 BB). So they are short stacked.\n\nWe have to act: we can fold, call (32 more chips), or raise (minimum raise to 128 total). So the amount to call is 32.\n\nWe need to decide: Should we fold, call, or raise?\n\nWe have Ad8h. This is a marginal hand. Ace-eight offsuit is not great. In a tournament with 9 BB, we are in a push/fold situation. However, we are on the button, and the big blind is short (270 chips). So we could consider a raise. But we need to think about ICM and tournament equity.\n\nGiven that we have 9 BB, we are in a somewhat desperate situation. However, we are on the button and only have to call 32 to see a flop. The big blind is short and may be willing to shove with a wide range. If we raise, we might get shoved on. If we call, we can see a flop and decide.\n\nBut with Ad8h, we have some potential. However, it's not a strong hand. The big blind is short and may shove over a raise. If we raise to 128, we are committing about 22% of our stack. If we get shoved on, we would have to call 270 - 128 = 142 more chips? Actually, if we raise to 128 and the BB shoves 270, the total to call would be 270 - 128 = 142. So we would be calling 142 to win a pot of 96 + 128 + 270 = 494? Let's compute: preflop pot is 96. We raise to 128, so we add 96 more (since we already posted 32). The BB shoves 270, which is 206 more than their 64 BB. So the pot would be: our 128 + BB's 270 + the small blind from seat 3? Actually seat 3 is out. So pot would be: our 128 + BB's 270 + the dead small blind? Actually the pot includes the 32 from us (SB) and 64 from BB. If we raise to 128, we put in 96 more. If BB shoves 270, they put in 206 more. So total pot would be 128 + 270 = 398. Plus the dead small blind? Wait, the small blind is part of our 128. So the pot would be 398. Actually, the pot would be: our raise to 128 (includes our SB of 32), BB's shove of 270 (includes their BB of 64). So the total pot would be 128 + 270 = 398. But there might also be the small blind from seat 3? No, seat 3 folded. So pot is 398. If we call the shove, we would have to put in 270 - 128 = 142 more. So we'd be calling 142 to win 398. That's about 35.7% equity needed. With Ad8h, if we think BB is shoving a wide range, we might have enough equity. But if BB is shoving a tight range, we might be behind.\n\nAlternatively, we could just call 32 and see a flop. That would be cheap. If we hit an ace, we might be good. If we hit an eight, maybe. But we could also be outkicked if we hit an ace.\n\nGiven that we have 9 BB, we should be looking for spots to accumulate chips. However, with a marginal hand like A8o, it's not a great spot to raise. We might want to fold and wait for a better hand. But we are on the button, and the big blind is short. The big blind might be shoving a wide range. We could consider raising to try to steal the blinds. But if we raise, we risk being shoved on.\n\nLet's think about tournament dynamics. Hand #116 suggests we are near the end of the tournament. The other players have 0 chips except for seat 5 with 270. So we are heads up against the big blind. The big blind has 270 chips (4.2 BB). So they are also short. They might be in a push/fold mode. If we raise, they might shove with any decent hand. If we"
+          },
+          {
+            "role": "user",
+            "content": "Invalid response format. Please respond with a JSON object containing 'action', 'raise_to' (if raising), and 'reasoning'."
+          },
+          {
+            "role": "assistant",
+            "content": "  The search results show that GPT-OSS-120B (the big blind) has been playing quite tight. In many hands, they have folded their big blind to a raise (or when facing a raise). In hand 111, they raised to 142 from the big blind after we posted a small blind and folded. In hand 114, they re-raised after we raised to 128, and we folded. So they are capable of re-raising.\n\nWe have Ad8h. This is a marginal hand. We have 9 BB. The big blind has 4.2 BB. The big blind is short. They might be shoving a wide range. However, they have been playing tight, folding many big blinds. But they also have shown aggression: in hand 111, they raised to 142 (which is a big raise). In hand 114, they re-raised to 192 after we raised to 128.\n\nWe need to decide: fold, call, or raise.\n\nGiven that we have 9 BB, we are in a push/fold mode. However, we are on the button and the big blind is short. We could raise to try to steal the blinds. But if we raise, we risk being shoved on. If we raise to 128, we are putting in 96 more chips (since we already have 32 in the pot). That would leave us with 448 chips if we fold to a shove. If we call 32, we see a flop and have 544 chips left.\n\nIf we raise and get shoved on, we would have to call 142 more (to match the 270). The pot would be 398. We would need 35.7% equity. With Ad8h, against a random hand, we have about 60% equity. Against a tight shoving range (like top 20%), we have about 40% equity. Against a very tight range (top 10%), we have about 30% equity. So it's borderline.\n\nBut we have to consider the tournament situation. The big blind has 270 chips. If we win, we would have 846 chips (576 + 270). If we lose, we would have 306 chips (576 - 270). So we would be left with about 4.8 BB. That's still playable but not great.\n\nIf we fold, we keep our 576 chips and wait for a better spot.\n\nIf we call, we see a flop. With Ad8h, we might hit an ace or an eight. But we could be outkicked if we hit an ace. And if we miss, we might have to fold to a bet.\n\nGiven that the big blind has been playing tight, they might fold to a raise. But they might also shove with a decent hand. Let's examine the big blind's aggression: In hand 111, they raised to 142 after we posted a small blind and folded. That suggests they might be willing to raise with a decent hand. In hand 114, they re-raised to 192 after we raised to 128. That suggests they are not afraid to re-raise.\n\nThus, if we raise, we might get re-raised. If we call, we see a flop.\n\nGiven that we have a marginal hand, and we are in a tournament with 9 BB, I think the best play is to fold. We should preserve our chips for a better spot. However, we are on the button and the big blind is short. We could consider a raise. But with A8o, it's not a strong hand. If we raise and get shoved on, we might be forced to fold or call with a marginal hand.\n\nAlternatively, we could call and see a flop. But that would be 32 chips, which is about 5.5% of our stack. That's not a huge investment. But if we miss, we might have to fold to a bet. And if we hit, we might be outkicked.\n\nGiven that the big blind is short and might be shoving a wide range, we could consider a raise and then call a shove. But with A8o, it's not a great hand to call a shove.\n\nThus, I think the best play is to fold. However, we could also consider a raise to 128 as a steal attempt. But if we get re-raised, we would have to fold. So we would lose 96 chips. That's not huge, but it's a loss.\n\nAlternatively, we could call 32 and see a flop. That might be the best option: we get to see a flop cheaply, and we can decide based on the flop. But if we miss, we might have to fold to a bet. And if we hit, we might be outkicked.\n\nGiven that we are on the button, we have position. So we can see the flop and then decide. The big blind is short and"
+          },
+          {
+            "role": "user",
+            "content": "Invalid response format. Please respond with a JSON object containing 'action', 'raise_to' (if raising), and 'reasoning'."
+          },
+          {
+            "role": "assistant",
+            "content": "  The user is asking for a JSON response. I need to decide the action: fold, call, or raise.\n\nWe have Ad8h on the button with 576 chips (9 BB). The big blind is 270 chips (4.2 BB). The big blind has been playing tight but has shown aggression. We have a marginal hand.\n\nI think the best play is to fold. We should preserve our chips for a better spot. However, we could also consider a raise to steal the blinds. But with A8o, it's not a great hand to raise. If we raise and get shoved on, we would have to call 142 to win 398, which is about 35.7% equity. With A8o, against a tight shoving range, we might not have enough equity.\n\nAlternatively, we could call 32 and see a flop. That would be cheap. But if we miss, we might have to fold to a bet. And if we hit, we might be outkicked.\n\nGiven that we have 9 BB, we are in a push/fold mode. However, we are on the button, so we could raise. But I think folding is the safest.\n\nWait, let's think about the tournament situation. The big blind has 270 chips. If we win, we would have 846 chips. If we lose, we would have 306 chips. So we would still have about 4.8 BB. That's not terrible. But we would be in a worse position.\n\nIf we fold, we keep our 576 chips and wait for a better hand.\n\nIf we raise to 128 and the big blind folds, we win 96 chips. That's a 16.7% increase in our stack. That's good. If the big blind shoves, we would have to decide whether to call. If we call, we risk losing 270 chips. If we fold to the shove, we lose 96 chips.\n\nIf we raise to 128 and the big blind shoves, we would have to call 142 more to win 398. That's about 35.7% equity. With A8o, against a random hand, we have about 60% equity. Against a tight shoving range (top 20%), we have about 40% equity. Against a very tight range (top 10%), we have about 30% equity. So it's borderline.\n\nGiven that the big blind has been playing tight, they might shove with a tight range. So we might not have enough equity.\n\nThus, I think the best play is to fold.\n\nBut wait, we have 9 BB. In a tournament, with 9 BB, we should be looking for spots to accumulate chips. However, we should also be selective with our hands. A8o is not a great hand. But we are on the button. The big blind is short. We could raise to try to steal the blinds. If we raise to 128 and the big blind folds, we win 96 chips. That's a good result. If the big blind shoves, we can fold. So we would lose 96 chips. That's not a huge loss.\n\nAlternatively, we could raise to 128 and then call the shove. But that would be risky.\n\nGiven that the big blind has been playing tight, they might fold to a raise. So a raise could be profitable.\n\nBut we need to consider the tournament stage. Hand #116 suggests we are near the end. The other players have 0 chips except for seat 5 with 270. So we are heads up against the big blind. The big blind is short. They might be in a push/fold mode. If we raise, they might shove with any decent hand. But they have been playing tight, so they might fold many hands.\n\nThus, a raise could be profitable. But we need to decide the size. The minimum raise is 128. That is 2x the big blind. That might be enough to steal.\n\nIf we raise to 128 and the big blind folds, we win 96 chips. If they shove, we can fold. So we would lose 96 chips. That's a risk of 96 to win 96. So it's a 1:1 risk/reward. That's not great. But if we think the big blind folds more than 50% of the time, it's profitable. But we don't know.\n\nAlternatively, we could call 32 and see a flop. That would be cheap. If we hit, we can continue. If we miss, we can fold. But we might lose more chips if we get involved.\n\nGiven that we have 9 BB, we should be careful. I think the best play is to fold. But we could also raise. Let's think about the big blind's likely range. They have 4.2 BB. They might be shoving with any pair, any ace, any king, any two broadway cards,"
+          },
+          {
+            "role": "user",
+            "content": "Invalid response format. Please respond with a JSON object containing 'action', 'raise_to' (if raising), and 'reasoning'."
+          }
+        ],
+        "tool_calls": [
+          {
+            "tool_name": "search_observations",
+            "arguments": {
+              "query": "GPT-OSS-120B",
+              "limit": 10
+            },
+            "result": "{\"query\": \"GPT-OSS-120B\", \"matches_found\": 10, \"hands\": [{\"hand_number\": 100, \"position\": \"BTN\", \"hole_cards\": [\"As\", \"6c\"], \"community_cards\": [\"6s\", \"Ad\", \"Td\", \"4c\"], \"result\": \"won\", \"chips_won\": 736, \"pot_size\": 736, \"num_actions\": 8, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"raise\", \"amount\": 80}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 48}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 48}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"raise\", \"amount\": 180}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 132}, {\"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"bet\", \"amount\": 216}, {\"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 101, \"position\": \"BB\", \"hole_cards\": [\"9h\", \"8s\"], \"community_cards\": [], \"result\": \"won\", \"chips_won\": 96, \"pot_size\": 96, \"num_actions\": 1, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 103, \"position\": \"BB\", \"hole_cards\": [\"9c\", \"6c\"], \"community_cards\": [], \"result\": \"won\", \"chips_won\": 96, \"pot_size\": 96, \"num_actions\": 1, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 105, \"position\": \"BB\", \"hole_cards\": [\"6s\", \"Jd\"], \"community_cards\": [], \"result\": \"won\", \"chips_won\": 96, \"pot_size\": 96, \"num_actions\": 1, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 107, \"position\": \"BB\", \"hole_cards\": [\"3d\", \"4s\"], \"community_cards\": [], \"result\": \"won\", \"chips_won\": 96, \"pot_size\": 96, \"num_actions\": 1, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 109, \"position\": \"BB\", \"hole_cards\": [\"2h\", \"5s\"], \"community_cards\": [\"8d\", \"Jd\", \"Jc\", \"Ad\", \"5d\"], \"result\": \"won\", \"chips_won\": 128, \"pot_size\": 128, \"num_actions\": 8, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 32}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"river\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"river\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}], \"showdown_cards\": {\"1\": [\"2h\", \"5s\"], \"5\": [\"7c\", \"Qh\"]}}, {\"hand_number\": 111, \"position\": \"BB\", \"hole_cards\": [\"2d\", \"Td\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 206, \"num_actions\": 2, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"raise\", \"amount\": 142}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 113, \"position\": \"BB\", \"hole_cards\": [\"5h\", \"4s\"], \"community_cards\": [], \"result\": \"won\", \"chips_won\": 96, \"pot_size\": 96, \"num_actions\": 1, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 114, \"position\": \"BTN\", \"hole_cards\": [\"8s\", \"Kh\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 320, \"num_actions\": 3, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"raise\", \"amount\": 128}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"raise\", \"amount\": 192}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 115, \"position\": \"BB\", \"hole_cards\": [\"7h\", \"4h\"], \"community_cards\": [], \"result\": \"won\", \"chips_won\": 96, \"pot_size\": 96, \"num_actions\": 1, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}]}"
+          }
+        ],
+        "llm_responses": [
+          {
+            "content": "",
+            "reasoning_content": "  We are playing a tournament. Current hand: #116. We are on the Button (BTN) with 576 chips (9.0 BB). The blinds are 32/64. Our stack is 576 chips. The pot is 96 chips (32 from small blind, 64 from big blind). We have Ad8h.\n\nWe posted the small blind (32). So we have 32 chips in the pot already. The big blind is 64. The big blind player (Seat 5) has 270 chips (4.2 BB). So they are short stacked.\n\nWe have to act: we can fold, call (32 more chips), or raise (minimum raise to 128 total). So the amount to call is 32.\n\nWe need to decide: Should we fold, call, or raise?\n\nWe have Ad8h. This is a marginal hand. Ace-eight offsuit is not great. In a tournament with 9 BB, we are in a push/fold situation. However, we are on the button, and the big blind is short (270 chips). So we could consider a raise. But we need to think about ICM and tournament equity.\n\nGiven that we have 9 BB, we are in a somewhat desperate situation. However, we are on the button and only have to call 32 to see a flop. The big blind is short and may be willing to shove with a wide range. If we raise, we might get shoved on. If we call, we can see a flop and decide.\n\nBut with Ad8h, we have some potential. However, it's not a strong hand. The big blind is short and may shove over a raise. If we raise to 128, we are committing about 22% of our stack. If we get shoved on, we would have to call 270 - 128 = 142 more chips? Actually, if we raise to 128 and the BB shoves 270, the total to call would be 270 - 128 = 142. So we would be calling 142 to win a pot of 96 + 128 + 270 = 494? Let's compute: preflop pot is 96. We raise to 128, so we add 96 more (since we already posted 32). The BB shoves 270, which is 206 more than their 64 BB. So the pot would be: our 128 + BB's 270 + the small blind from seat 3? Actually seat 3 is out. So pot would be: our 128 + BB's 270 + the dead small blind? Actually the pot includes the 32 from us (SB) and 64 from BB. If we raise to 128, we put in 96 more. If BB shoves 270, they put in 206 more. So total pot would be 128 + 270 = 398. Plus the dead small blind? Wait, the small blind is part of our 128. So the pot would be 398. Actually, the pot would be: our raise to 128 (includes our SB of 32), BB's shove of 270 (includes their BB of 64). So the total pot would be 128 + 270 = 398. But there might also be the small blind from seat 3? No, seat 3 folded. So pot is 398. If we call the shove, we would have to put in 270 - 128 = 142 more. So we'd be calling 142 to win 398. That's about 35.7% equity needed. With Ad8h, if we think BB is shoving a wide range, we might have enough equity. But if BB is shoving a tight range, we might be behind.\n\nAlternatively, we could just call 32 and see a flop. That would be cheap. If we hit an ace, we might be good. If we hit an eight, maybe. But we could also be outkicked if we hit an ace.\n\nGiven that we have 9 BB, we should be looking for spots to accumulate chips. However, with a marginal hand like A8o, it's not a great spot to raise. We might want to fold and wait for a better hand. But we are on the button, and the big blind is short. The big blind might be shoving a wide range. We could consider raising to try to steal the blinds. But if we raise, we risk being shoved on.\n\nLet's think about tournament dynamics. Hand #116 suggests we are near the end of the tournament. The other players have 0 chips except for seat 5 with 270. So we are heads up against the big blind. The big blind has 270 chips (4.2 BB). So they are also short. They might be in a push/fold mode. If we raise, they might shove with any decent hand. If we",
+            "usage": {
+              "prompt_tokens": 856,
+              "completion_tokens": 1024,
+              "total_tokens": 1880
+            },
+            "latency_ms": 12955.62720298767
+          },
+          {
+            "content": "",
+            "reasoning_content": "  The search results show that GPT-OSS-120B (the big blind) has been playing quite tight. In many hands, they have folded their big blind to a raise (or when facing a raise). In hand 111, they raised to 142 from the big blind after we posted a small blind and folded. In hand 114, they re-raised after we raised to 128, and we folded. So they are capable of re-raising.\n\nWe have Ad8h. This is a marginal hand. We have 9 BB. The big blind has 4.2 BB. The big blind is short. They might be shoving a wide range. However, they have been playing tight, folding many big blinds. But they also have shown aggression: in hand 111, they raised to 142 (which is a big raise). In hand 114, they re-raised to 192 after we raised to 128.\n\nWe need to decide: fold, call, or raise.\n\nGiven that we have 9 BB, we are in a push/fold mode. However, we are on the button and the big blind is short. We could raise to try to steal the blinds. But if we raise, we risk being shoved on. If we raise to 128, we are putting in 96 more chips (since we already have 32 in the pot). That would leave us with 448 chips if we fold to a shove. If we call 32, we see a flop and have 544 chips left.\n\nIf we raise and get shoved on, we would have to call 142 more (to match the 270). The pot would be 398. We would need 35.7% equity. With Ad8h, against a random hand, we have about 60% equity. Against a tight shoving range (like top 20%), we have about 40% equity. Against a very tight range (top 10%), we have about 30% equity. So it's borderline.\n\nBut we have to consider the tournament situation. The big blind has 270 chips. If we win, we would have 846 chips (576 + 270). If we lose, we would have 306 chips (576 - 270). So we would be left with about 4.8 BB. That's still playable but not great.\n\nIf we fold, we keep our 576 chips and wait for a better spot.\n\nIf we call, we see a flop. With Ad8h, we might hit an ace or an eight. But we could be outkicked if we hit an ace. And if we miss, we might have to fold to a bet.\n\nGiven that the big blind has been playing tight, they might fold to a raise. But they might also shove with a decent hand. Let's examine the big blind's aggression: In hand 111, they raised to 142 after we posted a small blind and folded. That suggests they might be willing to raise with a decent hand. In hand 114, they re-raised to 192 after we raised to 128. That suggests they are not afraid to re-raise.\n\nThus, if we raise, we might get re-raised. If we call, we see a flop.\n\nGiven that we have a marginal hand, and we are in a tournament with 9 BB, I think the best play is to fold. We should preserve our chips for a better spot. However, we are on the button and the big blind is short. We could consider a raise. But with A8o, it's not a strong hand. If we raise and get shoved on, we might be forced to fold or call with a marginal hand.\n\nAlternatively, we could call and see a flop. But that would be 32 chips, which is about 5.5% of our stack. That's not a huge investment. But if we miss, we might have to fold to a bet. And if we hit, we might be outkicked.\n\nGiven that the big blind is short and might be shoving a wide range, we could consider a raise and then call a shove. But with A8o, it's not a great hand to call a shove.\n\nThus, I think the best play is to fold. However, we could also consider a raise to 128 as a steal attempt. But if we get re-raised, we would have to fold. So we would lose 96 chips. That's not huge, but it's a loss.\n\nAlternatively, we could call 32 and see a flop. That might be the best option: we get to see a flop cheaply, and we can decide based on the flop. But if we miss, we might have to fold to a bet. And if we hit, we might be outkicked.\n\nGiven that we are on the button, we have position. So we can see the flop and then decide. The big blind is short and",
+            "usage": {
+              "prompt_tokens": 3695,
+              "completion_tokens": 1024,
+              "total_tokens": 4719
+            },
+            "latency_ms": 5949.355125427246
+          },
+          {
+            "content": "",
+            "reasoning_content": "  The user is asking for a JSON response. I need to decide the action: fold, call, or raise.\n\nWe have Ad8h on the button with 576 chips (9 BB). The big blind is 270 chips (4.2 BB). The big blind has been playing tight but has shown aggression. We have a marginal hand.\n\nI think the best play is to fold. We should preserve our chips for a better spot. However, we could also consider a raise to steal the blinds. But with A8o, it's not a great hand to raise. If we raise and get shoved on, we would have to call 142 to win 398, which is about 35.7% equity. With A8o, against a tight shoving range, we might not have enough equity.\n\nAlternatively, we could call 32 and see a flop. That would be cheap. But if we miss, we might have to fold to a bet. And if we hit, we might be outkicked.\n\nGiven that we have 9 BB, we are in a push/fold mode. However, we are on the button, so we could raise. But I think folding is the safest.\n\nWait, let's think about the tournament situation. The big blind has 270 chips. If we win, we would have 846 chips. If we lose, we would have 306 chips. So we would still have about 4.8 BB. That's not terrible. But we would be in a worse position.\n\nIf we fold, we keep our 576 chips and wait for a better hand.\n\nIf we raise to 128 and the big blind folds, we win 96 chips. That's a 16.7% increase in our stack. That's good. If the big blind shoves, we would have to decide whether to call. If we call, we risk losing 270 chips. If we fold to the shove, we lose 96 chips.\n\nIf we raise to 128 and the big blind shoves, we would have to call 142 more to win 398. That's about 35.7% equity. With A8o, against a random hand, we have about 60% equity. Against a tight shoving range (top 20%), we have about 40% equity. Against a very tight range (top 10%), we have about 30% equity. So it's borderline.\n\nGiven that the big blind has been playing tight, they might shove with a tight range. So we might not have enough equity.\n\nThus, I think the best play is to fold.\n\nBut wait, we have 9 BB. In a tournament, with 9 BB, we should be looking for spots to accumulate chips. However, we should also be selective with our hands. A8o is not a great hand. But we are on the button. The big blind is short. We could raise to try to steal the blinds. If we raise to 128 and the big blind folds, we win 96 chips. That's a good result. If the big blind shoves, we can fold. So we would lose 96 chips. That's not a huge loss.\n\nAlternatively, we could raise to 128 and then call the shove. But that would be risky.\n\nGiven that the big blind has been playing tight, they might fold to a raise. So a raise could be profitable.\n\nBut we need to consider the tournament stage. Hand #116 suggests we are near the end. The other players have 0 chips except for seat 5 with 270. So we are heads up against the big blind. The big blind is short. They might be in a push/fold mode. If we raise, they might shove with any decent hand. But they have been playing tight, so they might fold many hands.\n\nThus, a raise could be profitable. But we need to decide the size. The minimum raise is 128. That is 2x the big blind. That might be enough to steal.\n\nIf we raise to 128 and the big blind folds, we win 96 chips. If they shove, we can fold. So we would lose 96 chips. That's a risk of 96 to win 96. So it's a 1:1 risk/reward. That's not great. But if we think the big blind folds more than 50% of the time, it's profitable. But we don't know.\n\nAlternatively, we could call 32 and see a flop. That would be cheap. If we hit, we can continue. If we miss, we can fold. But we might lose more chips if we get involved.\n\nGiven that we have 9 BB, we should be careful. I think the best play is to fold. But we could also raise. Let's think about the big blind's likely range. They have 4.2 BB. They might be shoving with any pair, any ace, any king, any two broadway cards,",
+            "usage": {
+              "prompt_tokens": 2978,
+              "completion_tokens": 1024,
+              "total_tokens": 4002
+            },
+            "latency_ms": 6323.239088058472
+          },
+          {
+            "content": "```json\n{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"A8o is a marginal hand with a weak kicker. With 9 BB, I need to preserve my stack for better spots. The big blind is short and has shown aggression, likely to shove over a raise. Calling 32 commits me to a flop where I'll often be outkicked if I hit an Ace. Folding avoids risking chips with a weak hand.\"\n}\n```",
+            "reasoning_content": "  The user wants a JSON response with action, raise_to (if raising), and reasoning.\n\nI need to decide what to do with Ad8h on the button facing a 32 call.\n\nLet me think through this systematically:\n\n1. Hand strength: Ad8h is marginal. It's offsuit and the kicker is weak. Not a premium hand.\n2. Position: We're on the button, which is good post-flop position.\n3. Stack sizes: We have 576 (9 BB), BB has 270 (4.2 BB). BB is short and likely in push/fold mode.\n4. Opponent tendencies: From the search, GPT-OSS-120B has been tight but showed aggression when raising/re-raising. They're capable of folding BB but also of shoving.\n5. Tournament considerations: With 9 BB, we need to accumulate chips but also preserve our stack. We're not desperate yet, but we can't be too passive.\n\nOptions:\n- Fold: Preserve our 576 chips. Wait for better spot. Safest option.\n- Call (32 chips): Cheap flop. We have position. If we hit an Ace, we might be good but could be outkicked. If we hit an 8, we might have middle pair. Risk is we might face a shove on flop and have to fold.\n- Raise to 128: Steal attempt. If BB folds, we win 96 chips (16.7% stack increase). If BB shoves, we have to fold (lose 96 chips) or call (risky with A8o). The risk/reward is roughly 1:1.\n\nGiven the BB is short and has shown aggression, they might shove over our raise. With A8o, calling a shove would be marginal at best. We might not have enough equity against their shoving range.\n\nWith 9 BB, I think we should be selective. A8o is not strong enough to raise/call a shove. Calling 32 is cheap but we could get into trouble post-flop. Folding is safe but maybe too tight.\n\nIn tournament poker with 9 BB, we generally want to be in push/fold mode. However, since we're on the button and only need to call 32, we could see a flop. But if we miss, we lose 32 chips. If we hit, we might win more.\n\nLet me think about the math of calling 32:\n- Pot is 96, we call 32, so pot becomes 128.\n- We have 544 left.\n- If we hit an Ace on flop, we have top pair weak kicker. BB might shove. We could call or fold.\n- If we hit an 8, we have middle pair. Not great.\n- If we miss, we likely fold to any bet.\n\nThe EV of calling is probably negative or marginal.\n\nRaising to 128:\n- If BB folds >50% of the time, it's profitable.\n- If BB shoves, we fold and lose 96.\n- If BB calls, we see flop with initiative.\n\nBut given BB is short and has shown aggression, they might shove with a decent range. We don't want to call a shove with A8o.\n\nFolding:\n- We keep our 576 chips.\n- We wait for better hand or better spot.\n- With 9 BB, we still have time.\n\nI think folding is the best play here. A8o is just too weak to risk chips at this stage. We should preserve our stack for a better hand.\n\nThus, the action should be \"fold\".",
+            "usage": {
+              "prompt_tokens": 4039,
+              "completion_tokens": 846,
+              "total_tokens": 4885
+            },
+            "latency_ms": 5582.8399658203125
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "A8o is a marginal hand with a weak kicker. With 9 BB, I need to preserve my stack for better spots. The big blind is short and has shown aggression, likely to shove over a raise. Calling 32 commits me to a flop where I'll often be outkicked if I hit an Ace. Folding avoids risking chips with a weak hand.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 36923.0,
+        "retries": 3
+      }
+    ]
+  },
+  "summary": {
+    "total_decisions": 1,
+    "total_tool_calls": 1,
+    "total_retries": 3,
+    "agents_acted": [
+      1
+    ]
+  }
+}

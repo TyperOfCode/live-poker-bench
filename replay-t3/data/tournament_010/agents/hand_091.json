@@ -1,0 +1,138 @@
+{
+  "hand_number": 91,
+  "decisions": {
+    "5": [
+      {
+        "seat": 5,
+        "agent_name": "GPT-OSS-120B",
+        "hand_number": 91,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 91,
+          "street": "preflop",
+          "my_seat": 5,
+          "my_position": "BTN",
+          "my_hole_cards": [
+            "9d",
+            "8h"
+          ],
+          "my_stack": 386,
+          "community_cards": [],
+          "pot_size": 48,
+          "current_bet": 16,
+          "min_raise": 64,
+          "max_raise": 402,
+          "small_blind": 16,
+          "big_blind": 32,
+          "button_seat": 5,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 508,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 0,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 386,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_sb",
+              "amount": 16
+            },
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "post_bb",
+              "amount": 32
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #91 - PREFLOP ===\n\nYour Position: BTN (Seat 5)\nYour Cards: 9d 8h\nYour Stack: 386 chips (12.1 BB)\n\nBlinds: 16/32\nPot: 48 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 508 chips\n  Seat 2: Kimi-K2 - 0 chips (folded)\n  Seat 3: DeepSeek-V3.2 - 0 chips (folded)\n  Seat 4: MiniMax-M2 - 0 chips (folded)\n  Seat 5: GPT-OSS-120B - 386 chips\n\nActions this hand:\n  preflop: Seat 5 post_sb 16\n  preflop: Seat 1 post_bb 32\n\nAmount to call: 16\nMinimum raise to: 64\nLegal actions: fold, call, raise"
+          }
+        ],
+        "tool_calls": [
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "limit": 5,
+              "opponent_name": "Kimi-K2 Thinking"
+            },
+            "result": "{\"total_actions_found\": 5, \"actions\": [{\"hand_number\": 86, \"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 86, \"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 87, \"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 89, \"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"raise\", \"amount\": 48}, {\"hand_number\": 90, \"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}], \"showdowns\": []}"
+          }
+        ],
+        "llm_responses": [
+          {
+            "content": "{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"9\u26668\u2665 offsuit is a weak hand, especially out of position in the small blind. Calling 16 chips only gives us ~25% pot odds, but our equity vs a typical BB range is well below that. Raising would commit more chips with a marginal hand and likely lead to playing out of position. Folding preserves our short stack.\"\n}",
+            "reasoning_content": "We have hand #91 preflop. Position BTN, 9d8h, stack 386 (12.1 BB). Blinds 16/32, we posted small blind 16, big blind 32 from seat 1 (Kimi-K2 Thinking). So we are out of position post-flop (SB vs BB). Actually BTN is after BB, but we are SB? Wait seat numbers: seat5 is BTN, seat1 is BB. The blinds: small blind 16 posted by seat5 (us) and big blind 32 by seat1. So we are SB, not BTN? The description says Position: BTN (Seat5). But they also posted sb. In tournament, BTN is also SB when only 2 players left? Actually with 8 seats, BTN is seat5, small blind seat5, big blind seat1. So we are SB and also BTN (since we are the button). So we are in the small blind, out of position to BB.\n\nOur hand 9d8h is suited? No, 9d 8h unsuited. Not great.\n\nStack is shallow 12 BB. We are facing a BB of 32, we have already posted 16. To continue we need to call 16 more (to match BB). Minimum raise to 64 total (i.e., raise by 48). So we can fold, call 16, or raise to 64 (or more). With 9-8 offsuit, typical play is to fold in SB against a BB who hasn't shown aggression, especially short stack. But maybe we could raise as a steal? But we are SB, not in position. Raising may be okay to steal BB's 32, but we have only 12 BB; a raise of 64 would be 2 BB (including our 16). That's a decent raise size. However 9-8 offsuit is not a strong hand to raise; risk of being called and playing out of position. BB's tendencies: from recall, recent actions: hand 89 preflop raise 48 (i.e., raise to 48? Actually min raise is 64, but they raised 48 maybe they were in a different blind structure). Hard to interpret. In hand 89 they raised preflop. In other hands they folded or checked. So maybe they are somewhat aggressive but also fold often.\n\nGiven short stack, we might consider a shove? Minimum raise to 64 is not all-in; all-in would be 386 total (or 370 remaining after SB). But raising to 64 is a modest raise. With 9-8 off, I think fold is best.\n\nPot odds: to call 16 to win 48 (pot currently 48 + 16 call = 64). So need ~25% equity. 9-8 offsuit vs random BB range maybe ~15% equity, not enough. So fold.\n\nThus action: fold.\n\nProvide JSON.\n\n",
+            "usage": {
+              "prompt_tokens": 1151,
+              "completion_tokens": 713,
+              "total_tokens": 1864
+            },
+            "latency_ms": 1700.8380889892578
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "9\u26668\u2665 offsuit is a weak hand, especially out of position in the small blind. Calling 16 chips only gives us ~25% pot odds, but our equity vs a typical BB range is well below that. Raising would commit more chips with a marginal hand and likely lead to playing out of position. Folding preserves our short stack.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 3481.9,
+        "retries": 0
+      }
+    ]
+  },
+  "summary": {
+    "total_decisions": 1,
+    "total_tool_calls": 1,
+    "total_retries": 0,
+    "agents_acted": [
+      5
+    ]
+  }
+}
