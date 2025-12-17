@@ -1,0 +1,785 @@
+{
+  "hand_number": 28,
+  "decisions": {
+    "1": [
+      {
+        "seat": 1,
+        "agent_name": "Kimi-K2 Thinking",
+        "hand_number": 28,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 28,
+          "street": "preflop",
+          "my_seat": 1,
+          "my_position": "UTG",
+          "my_hole_cards": [
+            "7h",
+            "5s"
+          ],
+          "my_stack": 243,
+          "community_cards": [],
+          "pot_size": 6,
+          "current_bet": 4,
+          "min_raise": 8,
+          "max_raise": 243,
+          "small_blind": 2,
+          "big_blind": 4,
+          "button_seat": 3,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 243,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 204,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 193,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 178,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 176,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 4,
+              "action": "post_sb",
+              "amount": 2
+            },
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_bb",
+              "amount": 4
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #28 - PREFLOP ===\n\nYour Position: UTG (Seat 1)\nYour Cards: 7h 5s\nYour Stack: 243 chips (60.8 BB)\n\nBlinds: 2/4\nPot: 6 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 243 chips\n  Seat 2: Kimi-K2 - 204 chips\n  Seat 3: DeepSeek-V3.2 - 193 chips\n  Seat 4: MiniMax-M2 - 178 chips\n  Seat 5: GPT-OSS-120B - 176 chips\n\nActions this hand:\n  preflop: Seat 4 post_sb 2\n  preflop: Seat 5 post_bb 4\n\nAmount to call: 4\nMinimum raise to: 8\nLegal actions: fold, call, raise"
+          }
+        ],
+        "tool_calls": [
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "limit": 20
+            },
+            "result": "{\"total_actions_found\": 20, \"actions\": [{\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 2}, {\"hand_number\": 24, \"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"river\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 8}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"raise\", \"amount\": 12}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 25, \"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 12}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"raise\", \"amount\": 12}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}], \"showdowns\": []}"
+          }
+        ],
+        "llm_responses": [
+          {
+            "content": "{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"7-5 offsuit is a very weak hand, especially from UTG position. With 4 players still to act behind me and a healthy stack of 60+ BB, I should preserve my chips for better opportunities. The opponent history shows some aggressive play from Seat 5, making this an easy fold.\"\n}",
+            "reasoning_content": "  Looking at this hand:\n\n**My Hand:** 7h 5s (offsuit, low cards)\n**Position:** UTG (earliest position, worst position)\n**Stack:** 243 chips (60.8 BB) - healthy stack\n**Blinds:** 2/4\n**Pot:** 6 chips\n**Amount to call:** 4 chips\n\nFrom the opponent actions I just recalled:\n- Seat 5 (GPT-OSS-120B) has been quite active, raising preflop in hand 25 and betting postflop\n- Generally tight play from most opponents, lots of folding\n- In hand 27, Seat 2 (Kimi-K2) raised to 12 preflop\n\n**Analysis:**\n1. **Hand strength:** 7-5 offsuit is a very weak hand, especially from UTG position. This is a clear fold in almost all situations.\n\n2. **Position:** UTG is the worst position - I'll be first to act on all postflop streets with 4 players still to act behind me.\n\n3. **Opponent tendencies:** The table seems relatively tight based on the folding patterns, but Seat 5 has shown aggression. This makes playing a weak hand even more dangerous.\n\n4. **Tournament considerations:** With 60+ BB, I have a healthy stack. No need to risk chips with such a weak hand from bad position. Preserving my stack for better spots is key.\n\n5. **Pot odds:** 4 chips to win 6 chips = 1.5:1 pot odds, which is not nearly enough to justify playing this hand.\n\n**Decision:** Clear fold. This is a textbook fold situation - weak hand, bad position, healthy stack size where preservation matters more than accumulation with marginal spots.",
+            "usage": {
+              "prompt_tokens": 1750,
+              "completion_tokens": 454,
+              "total_tokens": 2204
+            },
+            "latency_ms": 2912.904977798462
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "7-5 offsuit is a very weak hand, especially from UTG position. With 4 players still to act behind me and a healthy stack of 60+ BB, I should preserve my chips for better opportunities. The opponent history shows some aggressive play from Seat 5, making this an easy fold.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 5957.8,
+        "retries": 0
+      }
+    ],
+    "2": [
+      {
+        "seat": 2,
+        "agent_name": "Kimi-K2",
+        "hand_number": 28,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 28,
+          "street": "preflop",
+          "my_seat": 2,
+          "my_position": "UTG",
+          "my_hole_cards": [
+            "Qd",
+            "3s"
+          ],
+          "my_stack": 204,
+          "community_cards": [],
+          "pot_size": 6,
+          "current_bet": 4,
+          "min_raise": 8,
+          "max_raise": 204,
+          "small_blind": 2,
+          "big_blind": 4,
+          "button_seat": 3,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 243,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 204,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 193,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 178,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 176,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 4,
+              "action": "post_sb",
+              "amount": 2
+            },
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_bb",
+              "amount": 4
+            },
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "fold",
+              "amount": 0
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #28 - PREFLOP ===\n\nYour Position: UTG (Seat 2)\nYour Cards: Qd 3s\nYour Stack: 204 chips (51.0 BB)\n\nBlinds: 2/4\nPot: 6 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 243 chips (folded)\n  Seat 2: Kimi-K2 - 204 chips\n  Seat 3: DeepSeek-V3.2 - 193 chips\n  Seat 4: MiniMax-M2 - 178 chips\n  Seat 5: GPT-OSS-120B - 176 chips\n\nActions this hand:\n  preflop: Seat 4 post_sb 2\n  preflop: Seat 5 post_bb 4\n  preflop: Seat 1 fold\n\nAmount to call: 4\nMinimum raise to: 8\nLegal actions: fold, call, raise"
+          }
+        ],
+        "tool_calls": [
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "limit": 10,
+              "opponent_name": "DeepSeek-V3.2"
+            },
+            "result": "{\"total_actions_found\": 10, \"actions\": [{\"hand_number\": 21, \"street\": \"flop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 21, \"street\": \"turn\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 21, \"street\": \"river\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 22, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 23, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"raise\", \"amount\": 8}, {\"hand_number\": 23, \"street\": \"flop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"bet\", \"amount\": 8}, {\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}], \"showdowns\": []}"
+          },
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "limit": 10,
+              "opponent_name": "MiniMax-M2"
+            },
+            "result": "{\"total_actions_found\": 10, \"actions\": [{\"hand_number\": 19, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"call\", \"amount\": 2}, {\"hand_number\": 19, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 20, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 21, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 22, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 23, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}], \"showdowns\": []}"
+          },
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "limit": 10,
+              "opponent_name": "GPT-OSS-120B"
+            },
+            "result": "{\"total_actions_found\": 10, \"actions\": [{\"hand_number\": 23, \"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 23, \"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 2}, {\"hand_number\": 24, \"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"hand_number\": 24, \"street\": \"river\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 8}, {\"hand_number\": 25, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"raise\", \"amount\": 12}, {\"hand_number\": 25, \"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 12}, {\"hand_number\": 26, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"hand_number\": 27, \"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdowns\": []}"
+          }
+        ],
+        "llm_responses": [
+          {
+            "content": "Based on the opponent analysis:\n\n1. **DeepSeek-V3.2** (Seat 3): Very tight preflop - has folded 7 out of 8 recent hands preflop, only raised once\n2. **MiniMax-M2** (Seat 4): Extremely tight - has folded 9 straight recent hands preflop  \n3. **GPT-OSS-120B** (Seat 5): More active - has shown aggression with raises and bets, not afraid to play hands\n\nNow evaluating my situation:\n- **Hand strength**: Qd 3s is a trash hand UTG - unsuited, disconnected, no potential\n- **Position**: UTG is the worst position, I have 5 players to act behind me\n- **Stack size**: 51 BB is healthy but I need to preserve chips in tournaments\n- **Opponent tendencies**: Players behind are relatively tight except seat 5\n\nEven though the opponents seem somewhat tight, Q3o is simply too weak to play from UTG. It's a clear fold in any standard tournament strategy.\n\n{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"Q3o is a trash hand from UTG with 5 players behind. Clear fold for tournament chip preservation.\"\n}",
+            "reasoning_content": null,
+            "usage": {
+              "prompt_tokens": 2517,
+              "completion_tokens": 268,
+              "total_tokens": 2785
+            },
+            "latency_ms": 1536.052942276001
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "Q3o is a trash hand from UTG with 5 players behind. Clear fold for tournament chip preservation.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 3843.2,
+        "retries": 0
+      }
+    ],
+    "3": [
+      {
+        "seat": 3,
+        "agent_name": "DeepSeek-V3.2",
+        "hand_number": 28,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 28,
+          "street": "preflop",
+          "my_seat": 3,
+          "my_position": "BTN",
+          "my_hole_cards": [
+            "6h",
+            "Ad"
+          ],
+          "my_stack": 193,
+          "community_cards": [],
+          "pot_size": 6,
+          "current_bet": 4,
+          "min_raise": 8,
+          "max_raise": 193,
+          "small_blind": 2,
+          "big_blind": 4,
+          "button_seat": 3,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 243,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 204,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 193,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 178,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 176,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 4,
+              "action": "post_sb",
+              "amount": 2
+            },
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_bb",
+              "amount": 4
+            },
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "fold",
+              "amount": 0
+            },
+            {
+              "street": "preflop",
+              "seat": 2,
+              "action": "fold",
+              "amount": 0
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #28 - PREFLOP ===\n\nYour Position: BTN (Seat 3)\nYour Cards: 6h Ad\nYour Stack: 193 chips (48.2 BB)\n\nBlinds: 2/4\nPot: 6 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 243 chips (folded)\n  Seat 2: Kimi-K2 - 204 chips (folded)\n  Seat 3: DeepSeek-V3.2 - 193 chips\n  Seat 4: MiniMax-M2 - 178 chips\n  Seat 5: GPT-OSS-120B - 176 chips\n\nActions this hand:\n  preflop: Seat 4 post_sb 2\n  preflop: Seat 5 post_bb 4\n  preflop: Seat 1 fold\n  preflop: Seat 2 fold\n\nAmount to call: 4\nMinimum raise to: 8\nLegal actions: fold, call, raise"
+          },
+          {
+            "role": "assistant",
+            "content": "Let me analyze this situation:\n\n**Current hand:** 6h Ad on the BTN (button position)\n**Stack:** 193 chips (48.2 BB) - healthy stack\n**Blinds:** 2/4\n**Pot:** 6 chips (SB + BB)\n**Action:** Folded to me on BTN\n**Players left to act:** SB (MiniMax-M2, 178 chips) and BB (GPT-OSS-120B, 176 chips)\n\n**Hand analysis:**\n- A6 offsuit is a marginal hand, but we're on the button which is the best position\n- Ace-high with a weak kicker, but can flop top pair with weak kicker or draws\n- In position against blinds who have posted forced bets\n\n**Opponent tendencies from search:**\n1. MiniMax-M2 (SB): Seems fairly tight - folded A6o in SB to a raise in hand 27, folded to my raise in hand 23\n2. GPT-OSS-120B (BB): Has shown some aggression - raised to 12 from UTG in hand 25, called my raise in hand 23 but folded to flop bet\n\n**Position advantage:** Being on BTN gives us positional advantage throughout the hand.\n\n**Options:**\n1. **Fold:** Conservative play with marginal hand\n2. **Call:** See flop cheaply with position\n3. **Raise:** Steal blinds with button raise\n\n**Tournament considerations:** With 48BB, we have room to be selective but also need to accumulate chips. Button steals are important in tournament poker.\n\n**Decision:** I think a small raise is appropriate here. A6o is playable from the button for a steal attempt. If either blind calls, we have position and can outplay them postflop. A raise to 8-12 chips (2-3x BB) seems reasonable.\n\nGiven the minimum raise is to 8, I'll raise to 12 (3x BB), which is a standard button raise size. This puts pressure on the blinds and gives us initiative."
+          },
+          {
+            "role": "user",
+            "content": "Invalid response format. Please respond with a JSON object containing 'action', 'raise_to' (if raising), and 'reasoning'."
+          }
+        ],
+        "tool_calls": [
+          {
+            "tool_name": "search_observations",
+            "arguments": {
+              "query": "MiniMax-M2",
+              "limit": 5
+            },
+            "result": "{\"query\": \"MiniMax-M2\", \"matches_found\": 5, \"hands\": [{\"hand_number\": 23, \"position\": \"BTN\", \"hole_cards\": [\"Ah\", \"8c\"], \"community_cards\": [\"2c\", \"7s\", \"3d\"], \"result\": \"won\", \"chips_won\": 26, \"pot_size\": 26, \"num_actions\": 8, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"raise\", \"amount\": 8}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 4}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"bet\", \"amount\": 8}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 24, \"position\": \"CO\", \"hole_cards\": [\"Th\", \"3c\"], \"community_cards\": [\"5d\", \"5h\", \"3h\", \"7s\", \"4h\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 24, \"num_actions\": 11, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 2}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"river\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 8}, {\"street\": \"river\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"call\", \"amount\": 8}], \"showdown_cards\": {\"1\": [\"8s\", \"6d\"], \"5\": [\"6c\", \"7d\"]}}, {\"hand_number\": 25, \"position\": \"UTG\", \"hole_cards\": [\"3h\", \"6d\"], \"community_cards\": [\"Ts\", \"7h\", \"3c\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 40, \"num_actions\": 8, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"raise\", \"amount\": 12}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"call\", \"amount\": 10}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 12}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 26, \"position\": \"BB\", \"hole_cards\": [\"Jh\", \"7s\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 20, \"num_actions\": 5, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"raise\", \"amount\": 14}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 27, \"position\": \"SB\", \"hole_cards\": [\"Ah\", \"6d\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 18, \"num_actions\": 5, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"raise\", \"amount\": 12}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}]}"
+          },
+          {
+            "tool_name": "search_observations",
+            "arguments": {
+              "query": "GPT-OSS-120B",
+              "limit": 5
+            },
+            "result": "{\"query\": \"GPT-OSS-120B\", \"matches_found\": 5, \"hands\": [{\"hand_number\": 23, \"position\": \"BTN\", \"hole_cards\": [\"Ah\", \"8c\"], \"community_cards\": [\"2c\", \"7s\", \"3d\"], \"result\": \"won\", \"chips_won\": 26, \"pot_size\": 26, \"num_actions\": 8, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"raise\", \"amount\": 8}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 4}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"bet\", \"amount\": 8}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 24, \"position\": \"CO\", \"hole_cards\": [\"Th\", \"3c\"], \"community_cards\": [\"5d\", \"5h\", \"3h\", \"7s\", \"4h\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 24, \"num_actions\": 11, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"call\", \"amount\": 2}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"river\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 8}, {\"street\": \"river\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"call\", \"amount\": 8}], \"showdown_cards\": {\"1\": [\"8s\", \"6d\"], \"5\": [\"6c\", \"7d\"]}}, {\"hand_number\": 25, \"position\": \"UTG\", \"hole_cards\": [\"3h\", \"6d\"], \"community_cards\": [\"Ts\", \"7h\", \"3c\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 40, \"num_actions\": 8, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"raise\", \"amount\": 12}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"call\", \"amount\": 10}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"flop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"bet\", \"amount\": 12}, {\"street\": \"flop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 26, \"position\": \"BB\", \"hole_cards\": [\"Jh\", \"7s\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 20, \"num_actions\": 5, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"raise\", \"amount\": 14}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}, {\"hand_number\": 27, \"position\": \"SB\", \"hole_cards\": [\"Ah\", \"6d\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 18, \"num_actions\": 5, \"all_actions\": [{\"street\": \"preflop\", \"seat\": 5, \"player\": \"GPT-OSS-120B\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 1, \"player\": \"Kimi-K2 Thinking\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 2, \"player\": \"Kimi-K2\", \"action\": \"raise\", \"amount\": 12}, {\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}, {\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}], \"showdown_cards\": {}}]}"
+          },
+          {
+            "tool_name": "recall_my_hands",
+            "arguments": {
+              "limit": 5
+            },
+            "result": "{\"total_hands_played\": 27, \"wins\": 7, \"folds\": 20, \"win_rate\": 0.25925925925925924, \"hands\": [{\"hand_number\": 23, \"position\": \"BTN\", \"hole_cards\": [\"Ah\", \"8c\"], \"community_cards\": [\"2c\", \"7s\", \"3d\"], \"result\": \"won\", \"chips_won\": 26, \"pot_size\": 26, \"num_actions\": 8, \"actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"raise\", \"amount\": 8}, {\"street\": \"flop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"bet\", \"amount\": 8}]}, {\"hand_number\": 24, \"position\": \"CO\", \"hole_cards\": [\"Th\", \"3c\"], \"community_cards\": [\"5d\", \"5h\", \"3h\", \"7s\", \"4h\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 24, \"num_actions\": 11, \"actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}]}, {\"hand_number\": 25, \"position\": \"UTG\", \"hole_cards\": [\"3h\", \"6d\"], \"community_cards\": [\"Ts\", \"7h\", \"3c\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 40, \"num_actions\": 8, \"actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}]}, {\"hand_number\": 26, \"position\": \"BB\", \"hole_cards\": [\"Jh\", \"7s\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 20, \"num_actions\": 5, \"actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}]}, {\"hand_number\": 27, \"position\": \"SB\", \"hole_cards\": [\"Ah\", \"6d\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 18, \"num_actions\": 5, \"actions\": [{\"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"fold\", \"amount\": 0}]}]}"
+          },
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "opponent_seat": 4,
+              "action_type": "raise",
+              "limit": 5
+            },
+            "result": "{\"total_actions_found\": 0, \"actions\": [], \"showdowns\": [{\"hand_number\": 3, \"cards\": [\"4c\", \"Ks\"], \"community_cards\": [\"6d\", \"Tc\", \"4h\", \"9s\", \"Jh\"]}]}"
+          },
+          {
+            "tool_name": "search_observations",
+            "arguments": {
+              "query": "button raise",
+              "limit": 3
+            },
+            "result": "{\"query\": \"button raise\", \"matches_found\": 0, \"hands\": []}"
+          }
+        ],
+        "llm_responses": [
+          {
+            "content": "",
+            "reasoning_content": "Let me analyze this situation:\n\n**Current hand:** 6h Ad on the BTN (button position)\n**Stack:** 193 chips (48.2 BB) - healthy stack\n**Blinds:** 2/4\n**Pot:** 6 chips (SB + BB)\n**Action:** Folded to me on BTN\n**Players left to act:** SB (MiniMax-M2, 178 chips) and BB (GPT-OSS-120B, 176 chips)\n\n**Hand analysis:**\n- A6 offsuit is a marginal hand, but we're on the button which is the best position\n- Ace-high with a weak kicker, but can flop top pair with weak kicker or draws\n- In position against blinds who have posted forced bets\n\n**Opponent tendencies from search:**\n1. MiniMax-M2 (SB): Seems fairly tight - folded A6o in SB to a raise in hand 27, folded to my raise in hand 23\n2. GPT-OSS-120B (BB): Has shown some aggression - raised to 12 from UTG in hand 25, called my raise in hand 23 but folded to flop bet\n\n**Position advantage:** Being on BTN gives us positional advantage throughout the hand.\n\n**Options:**\n1. **Fold:** Conservative play with marginal hand\n2. **Call:** See flop cheaply with position\n3. **Raise:** Steal blinds with button raise\n\n**Tournament considerations:** With 48BB, we have room to be selective but also need to accumulate chips. Button steals are important in tournament poker.\n\n**Decision:** I think a small raise is appropriate here. A6o is playable from the button for a steal attempt. If either blind calls, we have position and can outplay them postflop. A raise to 8-12 chips (2-3x BB) seems reasonable.\n\nGiven the minimum raise is to 8, I'll raise to 12 (3x BB), which is a standard button raise size. This puts pressure on the blinds and gives us initiative.",
+            "usage": {
+              "prompt_tokens": 5865,
+              "completion_tokens": 499,
+              "total_tokens": 6364
+            },
+            "latency_ms": 10994.765043258667
+          },
+          {
+            "content": "{\n  \"action\": \"raise\",\n  \"raise_to\": 12,\n  \"reasoning\": \"A6o is playable from the button for a steal attempt. With position advantage and opponents who have shown some fold tendencies, a standard 3x BB raise puts pressure on blinds and gives us initiative. If called, we have position to outplay opponents postflop.\"\n}",
+            "reasoning_content": "I need to respond with the JSON format. Let me structure my response properly.",
+            "usage": {
+              "prompt_tokens": 1687,
+              "completion_tokens": 98,
+              "total_tokens": 1785
+            },
+            "latency_ms": 1981.6749095916748
+          }
+        ],
+        "final_action": {
+          "action": "raise",
+          "raise_to": 12,
+          "reasoning": "A6o is playable from the button for a steal attempt. With position advantage and opponents who have shown some fold tendencies, a standard 3x BB raise puts pressure on blinds and gives us initiative. If called, we have position to outplay opponents postflop.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 33392.4,
+        "retries": 1
+      }
+    ],
+    "4": [
+      {
+        "seat": 4,
+        "agent_name": "MiniMax-M2",
+        "hand_number": 28,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 28,
+          "street": "preflop",
+          "my_seat": 4,
+          "my_position": "SB",
+          "my_hole_cards": [
+            "2c",
+            "4d"
+          ],
+          "my_stack": 178,
+          "community_cards": [],
+          "pot_size": 18,
+          "current_bet": 10,
+          "min_raise": 20,
+          "max_raise": 180,
+          "small_blind": 2,
+          "big_blind": 4,
+          "button_seat": 3,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 243,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 204,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 181,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 178,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 176,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 4,
+              "action": "post_sb",
+              "amount": 2
+            },
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_bb",
+              "amount": 4
+            },
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "fold",
+              "amount": 0
+            },
+            {
+              "street": "preflop",
+              "seat": 2,
+              "action": "fold",
+              "amount": 0
+            },
+            {
+              "street": "preflop",
+              "seat": 3,
+              "action": "raise",
+              "amount": 12
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #28 - PREFLOP ===\n\nYour Position: SB (Seat 4)\nYour Cards: 2c 4d\nYour Stack: 178 chips (44.5 BB)\n\nBlinds: 2/4\nPot: 18 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 243 chips (folded)\n  Seat 2: Kimi-K2 - 204 chips (folded)\n  Seat 3: DeepSeek-V3.2 - 181 chips\n  Seat 4: MiniMax-M2 - 178 chips\n  Seat 5: GPT-OSS-120B - 176 chips\n\nActions this hand:\n  preflop: Seat 4 post_sb 2\n  preflop: Seat 5 post_bb 4\n  preflop: Seat 1 fold\n  preflop: Seat 2 fold\n  preflop: Seat 3 raise 12\n\nAmount to call: 10\nMinimum raise to: 20\nLegal actions: fold, call, raise"
+          }
+        ],
+        "tool_calls": [
+          {
+            "tool_name": "recall_opponent_actions",
+            "arguments": {
+              "opponent_seat": 3,
+              "action_type": "raise",
+              "limit": 15
+            },
+            "result": "{\"total_actions_found\": 2, \"actions\": [{\"hand_number\": 15, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"raise\", \"amount\": 8}, {\"hand_number\": 23, \"street\": \"preflop\", \"seat\": 3, \"player\": \"DeepSeek-V3.2\", \"action\": \"raise\", \"amount\": 8}], \"showdowns\": [{\"hand_number\": 21, \"cards\": [\"As\", \"2d\"], \"community_cards\": [\"8h\", \"3c\", \"5c\", \"6c\", \"Kc\"]}]}"
+          },
+          {
+            "tool_name": "recall_my_hands",
+            "arguments": {
+              "limit": 10,
+              "position": "SB"
+            },
+            "result": "{\"total_hands_played\": 27, \"wins\": 2, \"folds\": 25, \"win_rate\": 0.07407407407407407, \"hands\": [{\"hand_number\": 3, \"position\": \"SB\", \"hole_cards\": [\"4c\", \"Ks\"], \"community_cards\": [\"6d\", \"Tc\", \"4h\", \"9s\", \"Jh\"], \"result\": \"won\", \"chips_won\": 4, \"pot_size\": 4, \"num_actions\": 11, \"actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"call\", \"amount\": 1}, {\"street\": \"flop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"turn\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"check\", \"amount\": 0}, {\"street\": \"river\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"check\", \"amount\": 0}]}, {\"hand_number\": 8, \"position\": \"SB\", \"hole_cards\": [\"4s\", \"Kd\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 11, \"num_actions\": 5, \"actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}]}, {\"hand_number\": 13, \"position\": \"SB\", \"hole_cards\": [\"8s\", \"6d\"], \"community_cards\": [], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 9, \"num_actions\": 5, \"actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}]}, {\"hand_number\": 18, \"position\": \"SB\", \"hole_cards\": [\"6d\", \"Tc\"], \"community_cards\": [\"5s\", \"Kh\", \"6s\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 8, \"num_actions\": 8, \"actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}]}, {\"hand_number\": 23, \"position\": \"SB\", \"hole_cards\": [\"3h\", \"Kc\"], \"community_cards\": [\"2c\", \"7s\", \"3d\"], \"result\": \"folded\", \"chips_won\": 0, \"pot_size\": 26, \"num_actions\": 8, \"actions\": [{\"street\": \"preflop\", \"seat\": 4, \"player\": \"MiniMax-M2\", \"action\": \"fold\", \"amount\": 0}]}]}"
+          }
+        ],
+        "llm_responses": [
+          {
+            "content": "Looking at this situation, I have 2c 4d in the small blind - one of the weakest possible starting hands in poker.\n\nFrom my history, I can see that:\n- I've been very tight from the SB position (folded 25 out of 27 hands)\n- DeepSeek-V3.2 has shown a pattern of preflop raises (8 chips twice before, now 12 chips)\n- My win rate from SB is only 7.4%, indicating I should be selective\n\nWith 2-4 offsuit, I have virtually no straight potential (would need 3-5-A or A-3-5) and minimal flush potential. Even if I hit the flop, I'd likely be dominated by better two-pair or straight possibilities.\n\nFacing a 10-chip call with only 44.5 BB, this is clearly a fold situation. The hand is too weak to play profitably, especially from out of position.\n\n{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"2c 4d is extremely weak, especially from SB position. Opponent has shown preflop raising tendency. My SB history shows I should be very tight (folded 25/27 hands). Pot odds don't justify calling with such a weak hand that has minimal equity and playability.\"\n}",
+            "reasoning_content": "Let me analyze this hand situation:\n\n1. **My Hand**: 2c 4d - This is a very weak hand, essentially the worst possible starting hand in poker (2-4 offsuit). It has very little straight potential and even less flush potential.\n\n2. **Position**: I'm in the Small Blind (SB) position, which is generally a weak position to play from.\n\n3. **Stack**: I have 178 chips (44.5 BB), which is a medium stack size.\n\n4. **Situation**: \n   - I'm facing a raise from Seat 3 (DeepSeek-V3.2) of 12 chips (to 12 total, meaning 8 chips more than the big blind)\n   - The amount to call is 10 chips (since I already posted 2 for SB, need to add 10 more to match the 12 total)\n   - Minimum raise would be to 20 chips\n\n5. **Opponent Analysis**: \n   - From the recall, DeepSeek-V3.2 has raised preflop twice before (hands 15 and 23) for 8 chips each time\n   - This current raise to 12 chips is slightly larger than their usual 8 chip raises\n   - I can see from hand 21 that they showed As-2d and won, suggesting they can play hands aggressively\n\n6. **My History in SB**: \n   - I've played 27 hands from SB position with only a 7.4% win rate\n   - I've folded 25 out of 27 hands from SB\n   - When I do play, I tend to just call (like in hand 3) rather than raise\n   - This suggests I should be very tight from SB\n\n7. **Pot Odds**: \n   - Pot is currently 18 chips\n   - I need to call 10 chips to see the flop\n   - Pot odds are 18:10 or about 1.8:1\n   - However, with 2-4 offsuit, I need very good pot odds to justify calling\n   \nThe weak hand and poor position make this an easy fold. With minimal winning potential and facing an aggressive opponent, the risk far outweighs any potential reward. The marginal pot odds don't justify taking such a speculative play from the small blind.",
+            "usage": {
+              "prompt_tokens": 2044,
+              "completion_tokens": 751,
+              "total_tokens": 2795
+            },
+            "latency_ms": 5937.924861907959
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "2c 4d is extremely weak, especially from SB position. Opponent has shown preflop raising tendency. My SB history shows I should be very tight (folded 25/27 hands). Pot odds don't justify calling with such a weak hand that has minimal equity and playability.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 11428.2,
+        "retries": 0
+      }
+    ],
+    "5": [
+      {
+        "seat": 5,
+        "agent_name": "GPT-OSS-120B",
+        "hand_number": 28,
+        "street": "preflop",
+        "observation": {
+          "hand_number": 28,
+          "street": "preflop",
+          "my_seat": 5,
+          "my_position": "BB",
+          "my_hole_cards": [
+            "3h",
+            "4c"
+          ],
+          "my_stack": 176,
+          "community_cards": [],
+          "pot_size": 18,
+          "current_bet": 8,
+          "min_raise": 20,
+          "max_raise": 180,
+          "small_blind": 2,
+          "big_blind": 4,
+          "button_seat": 3,
+          "players": [
+            {
+              "seat": 1,
+              "name": "Kimi-K2 Thinking",
+              "stack": 243,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 2,
+              "name": "Kimi-K2",
+              "stack": 204,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 3,
+              "name": "DeepSeek-V3.2",
+              "stack": 181,
+              "is_active": true,
+              "is_folded": false
+            },
+            {
+              "seat": 4,
+              "name": "MiniMax-M2",
+              "stack": 178,
+              "is_active": false,
+              "is_folded": true
+            },
+            {
+              "seat": 5,
+              "name": "GPT-OSS-120B",
+              "stack": 176,
+              "is_active": true,
+              "is_folded": false
+            }
+          ],
+          "actions_this_hand": [
+            {
+              "street": "preflop",
+              "seat": 4,
+              "action": "post_sb",
+              "amount": 2
+            },
+            {
+              "street": "preflop",
+              "seat": 5,
+              "action": "post_bb",
+              "amount": 4
+            },
+            {
+              "street": "preflop",
+              "seat": 1,
+              "action": "fold",
+              "amount": 0
+            },
+            {
+              "street": "preflop",
+              "seat": 2,
+              "action": "fold",
+              "amount": 0
+            },
+            {
+              "street": "preflop",
+              "seat": 3,
+              "action": "raise",
+              "amount": 12
+            },
+            {
+              "street": "preflop",
+              "seat": 4,
+              "action": "fold",
+              "amount": 0
+            }
+          ],
+          "legal_actions": [
+            "fold",
+            "call",
+            "raise"
+          ]
+        },
+        "conversation": [
+          {
+            "role": "system",
+            "content": "You are playing No-Limit Texas Hold'em poker in a tournament. Your goal is to win chips and ultimately win the tournament.\n\nYou have access to memory tools to recall information about past hands and opponent behavior. Use these tools strategically to inform your decisions.\n\nWhen you decide on an action, respond with a JSON object in this exact format:\n{\n  \"action\": \"fold\" | \"check\" | \"call\" | \"raise\",\n  \"raise_to\": <number if raising, otherwise null>,\n  \"reasoning\": \"<brief explanation of your decision>\"\n}\n\nImportant rules:\n- Use \"check\" when there's nothing to call (amount to call is 0)\n- Use \"call\" when facing a bet you want to match\n- If raising, \"raise_to\" is the TOTAL amount you're putting in (not the additional amount)\n- You can only raise if \"raise\" is in your legal_actions\n- If you can't afford the minimum raise, you can go all-in\n- Always provide reasoning for your decision\n\nThink step by step about:\n1. Your hand strength and potential\n2. Your position and stack size\n3. Opponent tendencies (use tools to recall)\n4. Pot odds and implied odds\n5. Tournament considerations (stack preservation vs. accumulation)"
+          },
+          {
+            "role": "user",
+            "content": "=== Hand #28 - PREFLOP ===\n\nYour Position: BB (Seat 5)\nYour Cards: 3h 4c\nYour Stack: 176 chips (44.0 BB)\n\nBlinds: 2/4\nPot: 18 chips\n\nPlayers at table:\n  Seat 1: Kimi-K2 Thinking - 243 chips (folded)\n  Seat 2: Kimi-K2 - 204 chips (folded)\n  Seat 3: DeepSeek-V3.2 - 181 chips\n  Seat 4: MiniMax-M2 - 178 chips (folded)\n  Seat 5: GPT-OSS-120B - 176 chips\n\nActions this hand:\n  preflop: Seat 4 post_sb 2\n  preflop: Seat 5 post_bb 4\n  preflop: Seat 1 fold\n  preflop: Seat 2 fold\n  preflop: Seat 3 raise 12\n  preflop: Seat 4 fold\n\nAmount to call: 8\nMinimum raise to: 20\nLegal actions: fold, call, raise"
+          },
+          {
+            "role": "assistant",
+            "content": "We have 3h4c, very weak. In BB facing raise to 12 (so 8 to call). Stack 176, 44 BB. Should fold. Check opponent tendencies? Probably not needed. So action fold."
+          },
+          {
+            "role": "user",
+            "content": "Invalid response format. Please respond with a JSON object containing 'action', 'raise_to' (if raising), and 'reasoning'."
+          }
+        ],
+        "tool_calls": [],
+        "llm_responses": [
+          {
+            "content": "",
+            "reasoning_content": "We have 3h4c, very weak. In BB facing raise to 12 (so 8 to call). Stack 176, 44 BB. Should fold. Check opponent tendencies? Probably not needed. So action fold.",
+            "usage": {
+              "prompt_tokens": 913,
+              "completion_tokens": 40,
+              "total_tokens": 953
+            },
+            "latency_ms": 804.4688701629639
+          },
+          {
+            "content": "{\n  \"action\": \"fold\",\n  \"raise_to\": null,\n  \"reasoning\": \"3h4c is a very weak hand with low equity, especially out of position in the big blind facing a raise. Folding preserves my stack for better spots.\"\n}",
+            "reasoning_content": "Need to output JSON with action fold, raise_to null, reasoning.",
+            "usage": {
+              "prompt_tokens": 1005,
+              "completion_tokens": 79,
+              "total_tokens": 1084
+            },
+            "latency_ms": 489.7022247314453
+          }
+        ],
+        "final_action": {
+          "action": "fold",
+          "raise_to": null,
+          "reasoning": "3h4c is a very weak hand with low equity, especially out of position in the big blind facing a raise. Folding preserves my stack for better spots.",
+          "forced": false,
+          "retries": 0,
+          "thinking_time_ms": 0.0
+        },
+        "thinking_time_ms": 1295.0,
+        "retries": 1
+      }
+    ]
+  },
+  "summary": {
+    "total_decisions": 5,
+    "total_tool_calls": 11,
+    "total_retries": 2,
+    "agents_acted": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+}
